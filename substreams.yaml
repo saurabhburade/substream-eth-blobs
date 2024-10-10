@@ -5,6 +5,7 @@ package:
 
 imports: # dependencies
   entity: https://github.com/streamingfast/substreams-entity-change/releases/download/v0.2.1/substreams-entity-change-v0.2.1.spkg
+  ethereum: https://github.com/streamingfast/firehose-ethereum/releases/download/v1.4.8/ethereum-v1.0.0.spkg
 
 protobuf: # specifies custom types for use by Substreams modules
   files:
@@ -34,11 +35,21 @@ modules: # specify modules with their inputs and outputs.
 
   - name: map_block_full
     kind: map
-    initialBlock: 20869585
+    initialBlock: 19426500
     inputs:
       - source: sf.ethereum.type.v2.Block
     output:
       type: proto:sf.ethereum.type.v2.Block
+    doc: |
+      `map_block_full` allows you to view a complete block, as received by a Substreams module     
+
+  - name: map_blob_transactions
+    kind: map
+    initialBlock: 19426500
+    inputs:
+      - source: sf.ethereum.type.v2.Block
+    output:
+      type:   proto:sf.ethereum.type.v2.Block
     doc: |
       `map_block_full` allows you to view a complete block, as received by a Substreams module     
       

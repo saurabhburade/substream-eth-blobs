@@ -8,7 +8,7 @@ dataSources:
     name: substream_test
     network: mainnet
     source:
-      startBlock: 20869585
+      startBlock: 19426500
       package:
         moduleName: map_block_full
         file: substreams-test-v1.0.1.spkg
