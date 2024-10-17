@@ -58,6 +58,8 @@ export function handleBlobsDayData(txn: BlobTransaction, blk: Block): void {
         blobsDayData.totalFeeUSD = ZERO_BD;
         blobsDayData.totalValueUSD = ZERO_BD;
         blobsDayData.totalBlobGasUSD = ZERO_BD;
+        blobsDayData.currentEthPrice = ZERO_BD;
+        blobsDayData.avgEthPrice = ZERO_BD;
       }
       if (blobsDayDataPrev !== null) {
         blobsDayData.previousBlobsDayData = blobsDayDataPrev.id;
@@ -105,6 +107,13 @@ export function handleBlobsDayData(txn: BlobTransaction, blk: Block): void {
           BigDecimal.fromString(blk.ethPriceChainlink.toString())
         )
       );
+      blobsDayData.currentEthPrice = BigDecimal.fromString(
+        blk.ethPriceChainlink.toString()
+      );
+      blobsDayData.avgEthPrice = blobsDayData.avgEthPrice
+        .plus(BigDecimal.fromString(blk.ethPriceChainlink.toString()))
+        .div(BigDecimal.fromString("2"));
+
       const blocknumber = new BigDecimal(BigInt.fromU64(blk.number));
       if (blobsDayData.lastUpdatedBlock !== null) {
         if (blocknumber.equals(blobsDayData.lastUpdatedBlock!)) {

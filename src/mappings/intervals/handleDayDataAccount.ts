@@ -62,6 +62,7 @@ export function handleAccountDayData(
         accountDayData.totalFeeUSD = ZERO_BD;
         accountDayData.totalValueUSD = ZERO_BD;
         accountDayData.totalBlobGasUSD = ZERO_BD;
+        accountDayData.currentEthPrice = ZERO_BD;
       }
       accountDayData.account = account.id;
 
@@ -118,6 +119,10 @@ export function handleAccountDayData(
           BigDecimal.fromString(blk.ethPriceChainlink.toString())
         )
       );
+      accountDayData.currentEthPrice = BigDecimal.fromString(
+        blk.ethPriceChainlink.toString()
+      );
+
       const blocknumber = new BigDecimal(BigInt.fromU64(blk.number));
       if (accountDayData.lastUpdatedBlock !== null) {
         if (blocknumber.equals(accountDayData.lastUpdatedBlock!)) {

@@ -59,6 +59,8 @@ export function handleBlobsHourData(txn: BlobTransaction, blk: Block): void {
         blobsHourData.totalGasUSD = ZERO_BD;
         blobsHourData.totalValueUSD = ZERO_BD;
         blobsHourData.totalBlobGasUSD = ZERO_BD;
+        blobsHourData.currentEthPrice = ZERO_BD;
+        blobsHourData.avgEthPrice = ZERO_BD;
         blobsHourData.hourStartTimestamp = new BigDecimal(hourStartTimestamp);
       }
       if (blobsHourDataPrev !== null) {
@@ -111,6 +113,13 @@ export function handleBlobsHourData(txn: BlobTransaction, blk: Block): void {
           BigDecimal.fromString(blk.ethPriceChainlink.toString())
         )
       );
+      blobsHourData.currentEthPrice = BigDecimal.fromString(
+        blk.ethPriceChainlink.toString()
+      );
+      blobsHourData.avgEthPrice = blobsHourData.avgEthPrice
+        .plus(BigDecimal.fromString(blk.ethPriceChainlink.toString()))
+        .div(BigDecimal.fromString("2"));
+
       const blocknumber = new BigDecimal(BigInt.fromU64(blk.number));
       if (blobsHourData.lastUpdatedBlock !== null) {
         if (blocknumber.equals(blobsHourData.lastUpdatedBlock!)) {

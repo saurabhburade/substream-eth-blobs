@@ -66,6 +66,8 @@ export function handleBlobBlockRegular(
     blobBlock.totalFeeUSD = ZERO_BD;
     blobBlock.totalValueUSD = ZERO_BD;
     blobBlock.totalBlobGasUSD = ZERO_BD;
+    blobBlock.avgEthPrice = ZERO_BD;
+    blobBlock.currentEthPrice = ZERO_BD;
   }
   //   txn.gasPrice!;
   if (txn.gasPrice !== null) {
@@ -87,7 +89,12 @@ export function handleBlobBlockRegular(
       );
     }
   }
-
+  blobBlock.currentEthPrice = BigDecimal.fromString(
+    blk.ethPriceChainlink.toString()
+  );
+  blobBlock.avgEthPrice = blobBlock.avgEthPrice
+    .plus(BigDecimal.fromString(blk.ethPriceChainlink.toString()))
+    .div(BigDecimal.fromString("2"));
   blobBlock.totalTransactionCount =
     blobBlock.totalTransactionCount.plus(ONE_BD);
   blobBlock.save();
@@ -121,6 +128,8 @@ export function handleBlobBlockBlobs(txn: BlobTransaction, blk: Block): void {
     blobBlock.totalFeeUSD = ZERO_BD;
     blobBlock.totalValueUSD = ZERO_BD;
     blobBlock.totalBlobGasUSD = ZERO_BD;
+    blobBlock.currentEthPrice = ZERO_BD;
+    blobBlock.avgEthPrice = ZERO_BD;
   }
   blobBlock.totalTransactionCount =
     blobBlock.totalTransactionCount.plus(ONE_BD);
@@ -176,5 +185,12 @@ export function handleBlobBlockBlobs(txn: BlobTransaction, blk: Block): void {
       BigDecimal.fromString(blk.ethPriceChainlink.toString())
     )
   );
+  blobBlock.currentEthPrice = BigDecimal.fromString(
+    blk.ethPriceChainlink.toString()
+  );
+  blobBlock.avgEthPrice = blobBlock.avgEthPrice
+    .plus(BigDecimal.fromString(blk.ethPriceChainlink.toString()))
+    .div(BigDecimal.fromString("2"));
+
   blobBlock.save();
 }

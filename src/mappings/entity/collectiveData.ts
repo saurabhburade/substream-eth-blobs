@@ -26,6 +26,8 @@ export function handleBlobsCollective(txn: BlobTransaction, blk: Block): void {
     collectiveData.totalGasUSD = ZERO_BD;
     collectiveData.totalValueUSD = ZERO_BD;
     collectiveData.totalBlobGasUSD = ZERO_BD;
+    collectiveData.avgEthPrice = ZERO_BD;
+    collectiveData.currentEthPrice = ZERO_BD;
   }
   //   let totalGasEth = ZERO_BD;
   //     if (txn.gasUsed !== null && ) {
@@ -94,6 +96,13 @@ export function handleBlobsCollective(txn: BlobTransaction, blk: Block): void {
     collectiveData.totalBlobBlocks =
       collectiveData.totalBlobBlocks!.plus(ONE_BD);
   }
+  collectiveData.currentEthPrice = BigDecimal.fromString(
+    blk.ethPriceChainlink.toString()
+  );
+  collectiveData.avgEthPrice = collectiveData.avgEthPrice
+    .plus(BigDecimal.fromString(blk.ethPriceChainlink.toString()))
+    .div(BigDecimal.fromString("2"));
+  
   // BLOBS DAY DATAS
   handleBlobsDayData(txn, blk);
   handleBlobsHourData(txn, blk);

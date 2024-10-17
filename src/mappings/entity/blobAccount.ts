@@ -36,11 +36,14 @@ export function handleBlobsAccount(txn: BlobTransaction, blk: Block): void {
     blobAccount.totalFeeUSD = ZERO_BD;
     blobAccount.totalValueUSD = ZERO_BD;
     blobAccount.totalBlobGasUSD = ZERO_BD;
+    blobAccount.currentEthPrice = ZERO_BD;
+
     handleNewBlobsAccount(txn, blk);
   }
   //   let totalGasEth = ZERO_BD;
   //     if (txn.gasUsed !== null && ) {
   //   }
+
   const totalGasEth = txn.gasUsed!.times(txn.gasPrice!) || ZERO_BD;
   const totalBlobGasEth = txn.blobGas!.times(txn.blobGasPrice!) || ZERO_BD;
   const totalFeeEth = txn.gasUsed!.times(txn.gasPrice!) || ZERO_BD;
@@ -91,6 +94,10 @@ export function handleBlobsAccount(txn: BlobTransaction, blk: Block): void {
       BigDecimal.fromString(blk.ethPriceChainlink.toString())
     )
   );
+  blobAccount.currentEthPrice = BigDecimal.fromString(
+    blk.ethPriceChainlink.toString()
+  );
+
   const blocknumber = new BigDecimal(BigInt.fromU64(blk.number));
   if (blobAccount.lastUpdatedBlock !== null) {
     if (blocknumber.equals(blobAccount.lastUpdatedBlock!)) {

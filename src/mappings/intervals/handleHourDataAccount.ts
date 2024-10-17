@@ -63,6 +63,7 @@ export function handleAccountHourData(
         accounHourData.totalFeeUSD = ZERO_BD;
         accounHourData.totalValueUSD = ZERO_BD;
         accounHourData.totalBlobGasUSD = ZERO_BD;
+        accounHourData.currentEthPrice = ZERO_BD;
       }
       accounHourData.account = account.id;
       if (accounHourDataPrev !== null) {
@@ -117,6 +118,9 @@ export function handleAccountHourData(
         totalBlobGasEth!.times(
           BigDecimal.fromString(blk.ethPriceChainlink.toString())
         )
+      );
+      accounHourData.currentEthPrice = BigDecimal.fromString(
+        blk.ethPriceChainlink.toString()
       );
       const blocknumber = new BigDecimal(BigInt.fromU64(blk.number));
       if (accounHourData.lastUpdatedBlock !== null) {
