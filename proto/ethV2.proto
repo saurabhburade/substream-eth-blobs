@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package sf.ethereum.type.v2;
+package sf.ethereum.type.v2.clone;
 
 import "google/protobuf/timestamp.proto";
 
@@ -65,7 +65,7 @@ message Block {
   //
   // If the Block has been produced using the Proof of Stake consensus algorithm, this
   // field will actually be always empty.
-  repeated BlockHeader uncles = 6;
+  // repeated BlockHeader uncles = 6;
 
   // TransactionTraces hold the execute trace of all the transactions that were executed
   // in this block. In in there that you will find most of the Ethereum data model.
@@ -80,7 +80,7 @@ message Block {
   // attached it to any transaction.
   //
   // Only available in DetailLevel: EXTENDED
-  repeated BalanceChange balance_changes = 11;
+  // repeated BalanceChange balance_changes = 11;
 
   enum DetailLevel {
     DETAILLEVEL_EXTENDED = 0;
@@ -104,7 +104,7 @@ message Block {
   // Furthermore, the eth_getTransactionReceipt call has been avoided because it
   // brings only minimal improvements at the cost of requiring an archive node
   // or a full node with complete transaction index.
-  DetailLevel detail_level = 12;
+  // DetailLevel detail_level = 12;
 
   // CodeChanges here is the array of smart code change that happened that happened at the block level
   // outside of the normal transaction flow of a block. Some Ethereum's fork like BSC and Polygon
@@ -116,12 +116,12 @@ message Block {
   // that this happen rarely, so the vast majority of block will have an empty list here.
   //
   // Only available in DetailLevel: EXTENDED
-  repeated CodeChange code_changes = 20;
+  // repeated CodeChange code_changes = 20;
 
   // System calls are introduced in Cancun, along with blobs. They are executed outside of transactions but affect the state.
   //
   // Only available in DetailLevel: EXTENDED
-  repeated Call system_calls = 21;
+  // repeated Call system_calls = 21;
 
   reserved 40; // bool filtering_applied = 40 [deprecated = true];
   reserved 41; // string filtering_include_filter_expr = 41 [deprecated = true];
@@ -130,6 +130,9 @@ message Block {
   // Ver represents that data model version of the block, it is used internally by Firehose on Ethereum
   // as a validation that we are reading the correct version.
   int32 ver = 1;
+
+  string eth_price_chainlink = 101;
+  string eth_price_oneinch = 102;
 }
 
 message BlockHeader {
@@ -229,7 +232,7 @@ message BlockHeader {
   // code to determine how to extract it if you need it.
   //
   // Only available in DetailLevel: EXTENDED
-  Uint64NestedArray tx_dependency = 20;
+  // Uint64NestedArray tx_dependency = 20;
 
   // BlobGasUsed was added by EIP-4844 and is ignored in legacy headers.
   optional uint64 blob_gas_used = 22;
@@ -362,7 +365,7 @@ message TransactionTrace {
   //
   // This will is populated only if `TransactionTrace.Type == TRX_TYPE_ACCESS_LIST || TRX_TYPE_DYNAMIC_FEE` which
   // is possible only if Berlin (TRX_TYPE_ACCESS_LIST) nor London (TRX_TYPE_DYNAMIC_FEE) fork are active on the chain.
-  repeated AccessTuple access_list = 14;
+  // repeated AccessTuple access_list = 14;
 
   // MaxFeePerGas is the maximum fee per gas the user is willing to pay for the transaction gas used.
   //
@@ -429,7 +432,7 @@ message TransactionTrace {
   TransactionReceipt receipt = 31;
 
   // Only available in DetailLevel: EXTENDED
-  repeated Call calls = 32;
+  // repeated Call calls = 32;
 
   // BlobGas is the amount of gas the transaction is going to pay for the blobs, this is a computed value
   // equivalent to `self.blob_gas_fee_cap * len(self.blob_hashes)` and provided in the model for convenience.
@@ -488,7 +491,7 @@ message TransactionReceipt {
   bytes state_root = 1;
   uint64 cumulative_gas_used = 2;
   bytes logs_bloom = 3;
-  repeated Log logs = 4;
+  // repeated Log logs = 4;
 
   // BlobGasUsed is the amount of blob gas that has been used within this transaction. At time
   // of writing, this is equal to `self.blob_gas_fee_cap * len(self.blob_hashes)`.

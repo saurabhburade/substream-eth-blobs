@@ -6,10 +6,6 @@
 import { Writer, Reader } from "as-proto/assembly";
 import { BlockHeader } from "./BlockHeader";
 import { TransactionTrace } from "./TransactionTrace";
-import { BalanceChange } from "./BalanceChange";
-import { CodeChange } from "./CodeChange";
-import { Call } from "./Call";
-import { DetailLevel } from "./Block/DetailLevel";
 
 export class Block {
   static encode(message: Block, writer: Writer): void {
@@ -30,14 +26,6 @@ export class Block {
       writer.ldelim();
     }
 
-    const uncles = message.uncles;
-    for (let i: i32 = 0; i < uncles.length; ++i) {
-      writer.uint32(50);
-      writer.fork();
-      BlockHeader.encode(uncles[i], writer);
-      writer.ldelim();
-    }
-
     const transactionTraces = message.transactionTraces;
     for (let i: i32 = 0; i < transactionTraces.length; ++i) {
       writer.uint32(82);
@@ -46,35 +34,14 @@ export class Block {
       writer.ldelim();
     }
 
-    const balanceChanges = message.balanceChanges;
-    for (let i: i32 = 0; i < balanceChanges.length; ++i) {
-      writer.uint32(90);
-      writer.fork();
-      BalanceChange.encode(balanceChanges[i], writer);
-      writer.ldelim();
-    }
-
-    writer.uint32(96);
-    writer.int32(message.detailLevel);
-
-    const codeChanges = message.codeChanges;
-    for (let i: i32 = 0; i < codeChanges.length; ++i) {
-      writer.uint32(162);
-      writer.fork();
-      CodeChange.encode(codeChanges[i], writer);
-      writer.ldelim();
-    }
-
-    const systemCalls = message.systemCalls;
-    for (let i: i32 = 0; i < systemCalls.length; ++i) {
-      writer.uint32(170);
-      writer.fork();
-      Call.encode(systemCalls[i], writer);
-      writer.ldelim();
-    }
-
     writer.uint32(8);
     writer.int32(message.ver);
+
+    writer.uint32(810);
+    writer.string(message.ethPriceChainlink);
+
+    writer.uint32(818);
+    writer.string(message.ethPriceOneinch);
   }
 
   static decode(reader: Reader, length: i32): Block {
@@ -100,36 +67,22 @@ export class Block {
           message.header = BlockHeader.decode(reader, reader.uint32());
           break;
 
-        case 6:
-          message.uncles.push(BlockHeader.decode(reader, reader.uint32()));
-          break;
-
         case 10:
           message.transactionTraces.push(
             TransactionTrace.decode(reader, reader.uint32())
           );
           break;
 
-        case 11:
-          message.balanceChanges.push(
-            BalanceChange.decode(reader, reader.uint32())
-          );
-          break;
-
-        case 12:
-          message.detailLevel = reader.int32();
-          break;
-
-        case 20:
-          message.codeChanges.push(CodeChange.decode(reader, reader.uint32()));
-          break;
-
-        case 21:
-          message.systemCalls.push(Call.decode(reader, reader.uint32()));
-          break;
-
         case 1:
           message.ver = reader.int32();
+          break;
+
+        case 101:
+          message.ethPriceChainlink = reader.string();
+          break;
+
+        case 102:
+          message.ethPriceOneinch = reader.string();
           break;
 
         default:
@@ -145,37 +98,28 @@ export class Block {
   number: u64;
   size: u64;
   header: BlockHeader | null;
-  uncles: Array<BlockHeader>;
   transactionTraces: Array<TransactionTrace>;
-  balanceChanges: Array<BalanceChange>;
-  detailLevel: DetailLevel;
-  codeChanges: Array<CodeChange>;
-  systemCalls: Array<Call>;
   ver: i32;
+  ethPriceChainlink: string;
+  ethPriceOneinch: string;
 
   constructor(
     hash: Uint8Array = new Uint8Array(0),
     number: u64 = 0,
     size: u64 = 0,
     header: BlockHeader | null = null,
-    uncles: Array<BlockHeader> = [],
     transactionTraces: Array<TransactionTrace> = [],
-    balanceChanges: Array<BalanceChange> = [],
-    detailLevel: DetailLevel = 0,
-    codeChanges: Array<CodeChange> = [],
-    systemCalls: Array<Call> = [],
-    ver: i32 = 0
+    ver: i32 = 0,
+    ethPriceChainlink: string = "",
+    ethPriceOneinch: string = ""
   ) {
     this.hash = hash;
     this.number = number;
     this.size = size;
     this.header = header;
-    this.uncles = uncles;
     this.transactionTraces = transactionTraces;
-    this.balanceChanges = balanceChanges;
-    this.detailLevel = detailLevel;
-    this.codeChanges = codeChanges;
-    this.systemCalls = systemCalls;
     this.ver = ver;
+    this.ethPriceChainlink = ethPriceChainlink;
+    this.ethPriceOneinch = ethPriceOneinch;
   }
 }

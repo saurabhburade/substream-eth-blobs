@@ -4,7 +4,6 @@
 //   protoc        v5.26.1
 
 import { Writer, Reader } from "as-proto/assembly";
-import { Log } from "./Log";
 import { BigInt } from "./BigInt";
 
 export class TransactionReceipt {
@@ -17,14 +16,6 @@ export class TransactionReceipt {
 
     writer.uint32(26);
     writer.bytes(message.logsBloom);
-
-    const logs = message.logs;
-    for (let i: i32 = 0; i < logs.length; ++i) {
-      writer.uint32(34);
-      writer.fork();
-      Log.encode(logs[i], writer);
-      writer.ldelim();
-    }
 
     writer.uint32(40);
     writer.uint64(message.blobGasUsed);
@@ -57,10 +48,6 @@ export class TransactionReceipt {
           message.logsBloom = reader.bytes();
           break;
 
-        case 4:
-          message.logs.push(Log.decode(reader, reader.uint32()));
-          break;
-
         case 5:
           message.blobGasUsed = reader.uint64();
           break;
@@ -81,7 +68,6 @@ export class TransactionReceipt {
   stateRoot: Uint8Array;
   cumulativeGasUsed: u64;
   logsBloom: Uint8Array;
-  logs: Array<Log>;
   blobGasUsed: u64;
   blobGasPrice: BigInt | null;
 
@@ -89,14 +75,12 @@ export class TransactionReceipt {
     stateRoot: Uint8Array = new Uint8Array(0),
     cumulativeGasUsed: u64 = 0,
     logsBloom: Uint8Array = new Uint8Array(0),
-    logs: Array<Log> = [],
     blobGasUsed: u64 = 0,
     blobGasPrice: BigInt | null = null
   ) {
     this.stateRoot = stateRoot;
     this.cumulativeGasUsed = cumulativeGasUsed;
     this.logsBloom = logsBloom;
-    this.logs = logs;
     this.blobGasUsed = blobGasUsed;
     this.blobGasPrice = blobGasPrice;
   }

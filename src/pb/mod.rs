@@ -11,6 +11,11 @@ pub mod sf {
             pub mod v2 {
                 include!("sf.ethereum.type.v2.rs");
                 // @@protoc_insertion_point(sf.ethereum.type.v2)
+                // @@protoc_insertion_point(attribute:sf.ethereum.type.v2.clone)
+                pub mod clone {
+                    include!("sf.ethereum.type.v2.clone.rs");
+                    // @@protoc_insertion_point(sf.ethereum.type.v2.clone)
+                }
             }
         }
         pub mod substreams {

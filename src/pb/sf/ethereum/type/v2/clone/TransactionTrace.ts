@@ -5,9 +5,7 @@
 
 import { Writer, Reader } from "as-proto/assembly";
 import { BigInt } from "./BigInt";
-import { AccessTuple } from "./AccessTuple";
 import { TransactionReceipt } from "./TransactionReceipt";
-import { Call } from "./Call";
 import { Type } from "./TransactionTrace/Type";
 import { TransactionTraceStatus } from "./TransactionTraceStatus";
 
@@ -56,14 +54,6 @@ export class TransactionTrace {
     writer.uint32(96);
     writer.int32(message.type);
 
-    const accessList = message.accessList;
-    for (let i: i32 = 0; i < accessList.length; ++i) {
-      writer.uint32(114);
-      writer.fork();
-      AccessTuple.encode(accessList[i], writer);
-      writer.ldelim();
-    }
-
     const maxFeePerGas = message.maxFeePerGas;
     if (maxFeePerGas !== null) {
       writer.uint32(90);
@@ -109,14 +99,6 @@ export class TransactionTrace {
       writer.uint32(250);
       writer.fork();
       TransactionReceipt.encode(receipt, writer);
-      writer.ldelim();
-    }
-
-    const calls = message.calls;
-    for (let i: i32 = 0; i < calls.length; ++i) {
-      writer.uint32(258);
-      writer.fork();
-      Call.encode(calls[i], writer);
       writer.ldelim();
     }
 
@@ -191,10 +173,6 @@ export class TransactionTrace {
           message.type = reader.int32();
           break;
 
-        case 14:
-          message.accessList.push(AccessTuple.decode(reader, reader.uint32()));
-          break;
-
         case 11:
           message.maxFeePerGas = BigInt.decode(reader, reader.uint32());
           break;
@@ -239,10 +217,6 @@ export class TransactionTrace {
           message.receipt = TransactionReceipt.decode(reader, reader.uint32());
           break;
 
-        case 32:
-          message.calls.push(Call.decode(reader, reader.uint32()));
-          break;
-
         case 33:
           message.blobGas = reader.uint64();
           break;
@@ -275,7 +249,6 @@ export class TransactionTrace {
   s: Uint8Array;
   gasUsed: u64;
   type: Type;
-  accessList: Array<AccessTuple>;
   maxFeePerGas: BigInt | null;
   maxPriorityFeePerGas: BigInt | null;
   index: u32;
@@ -287,7 +260,6 @@ export class TransactionTrace {
   endOrdinal: u64;
   status: TransactionTraceStatus;
   receipt: TransactionReceipt | null;
-  calls: Array<Call>;
   blobGas: u64;
   blobGasFeeCap: BigInt | null;
   blobHashes: Array<Uint8Array>;
@@ -304,7 +276,6 @@ export class TransactionTrace {
     s: Uint8Array = new Uint8Array(0),
     gasUsed: u64 = 0,
     type: Type = 0,
-    accessList: Array<AccessTuple> = [],
     maxFeePerGas: BigInt | null = null,
     maxPriorityFeePerGas: BigInt | null = null,
     index: u32 = 0,
@@ -316,7 +287,6 @@ export class TransactionTrace {
     endOrdinal: u64 = 0,
     status: TransactionTraceStatus = 0,
     receipt: TransactionReceipt | null = null,
-    calls: Array<Call> = [],
     blobGas: u64 = 0,
     blobGasFeeCap: BigInt | null = null,
     blobHashes: Array<Uint8Array> = []
@@ -332,7 +302,6 @@ export class TransactionTrace {
     this.s = s;
     this.gasUsed = gasUsed;
     this.type = type;
-    this.accessList = accessList;
     this.maxFeePerGas = maxFeePerGas;
     this.maxPriorityFeePerGas = maxPriorityFeePerGas;
     this.index = index;
@@ -344,7 +313,6 @@ export class TransactionTrace {
     this.endOrdinal = endOrdinal;
     this.status = status;
     this.receipt = receipt;
-    this.calls = calls;
     this.blobGas = blobGas;
     this.blobGasFeeCap = blobGasFeeCap;
     this.blobHashes = blobHashes;
