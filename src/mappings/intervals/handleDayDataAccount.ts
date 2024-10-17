@@ -4,7 +4,7 @@ import {
   AccountDayData,
   BlobTransaction,
 } from "../../../generated/schema";
-import { Block } from "../../pb/sf/ethereum/type/v2/Block";
+import { Block } from "../../pb/sf/ethereum/type/v2/clone/Block";
 import { ONE_BD, ZERO_BD } from "../../utils/constants";
 
 export function handleAccountDayData(
@@ -58,6 +58,10 @@ export function handleAccountDayData(
         accountDayData.totalBlobBlocks = ZERO_BD;
         accountDayData.dayStartTimestamp = new BigDecimal(dayStartTimestamp);
         accountDayData.account = account.id;
+        accountDayData.totalGasUSD = ZERO_BD;
+        accountDayData.totalFeeUSD = ZERO_BD;
+        accountDayData.totalValueUSD = ZERO_BD;
+        accountDayData.totalBlobGasUSD = ZERO_BD;
       }
       accountDayData.account = account.id;
 
@@ -93,6 +97,26 @@ export function handleAccountDayData(
         accountDayData.totalBlobHashesCount.plus(totalBlobHashesCount!);
       accountDayData.totalBlobGasEth = accountDayData.totalBlobGasEth.plus(
         totalBlobGasEth!
+      );
+      accountDayData.totalGasUSD = accountDayData.totalGasUSD.plus(
+        totalBlobGasEth!.times(
+          BigDecimal.fromString(blk.ethPriceChainlink.toString())
+        )
+      );
+      accountDayData.totalFeeUSD = accountDayData.totalFeeUSD.plus(
+        totalFeeEth!.times(
+          BigDecimal.fromString(blk.ethPriceChainlink.toString())
+        )
+      );
+      accountDayData.totalValueUSD = accountDayData.totalValueUSD.plus(
+        totalValueEth!.times(
+          BigDecimal.fromString(blk.ethPriceChainlink.toString())
+        )
+      );
+      accountDayData.totalBlobGasUSD = accountDayData.totalBlobGasUSD.plus(
+        totalBlobGasEth!.times(
+          BigDecimal.fromString(blk.ethPriceChainlink.toString())
+        )
       );
       const blocknumber = new BigDecimal(BigInt.fromU64(blk.number));
       if (accountDayData.lastUpdatedBlock !== null) {

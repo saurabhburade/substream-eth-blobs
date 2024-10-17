@@ -7,8 +7,8 @@ import {
   BlobTransaction,
   CollectiveData,
 } from "../../../generated/schema";
-import { Block } from "../../pb/sf/ethereum/type/v2/Block";
-import { TransactionTrace } from "../../pb/sf/ethereum/type/v2/TransactionTrace";
+import { Block } from "../../pb/sf/ethereum/type/v2/clone/Block";
+import { TransactionTrace } from "../../pb/sf/ethereum/type/v2/clone/TransactionTrace";
 import { ONE_BD, ZERO_BD, ZERO_BI } from "../../utils/constants";
 import { handleBlobsDayData } from "../intervals/handleDayDatas";
 import { handleBlobsHourData } from "../intervals/handleHourDatas";
@@ -32,6 +32,10 @@ export function handleBlobsAccount(txn: BlobTransaction, blk: Block): void {
     blobAccount.totalBlobHashesCount = ZERO_BD;
     blobAccount.totalBlobGasEth = ZERO_BD;
     blobAccount.totalBlobBlocks = ZERO_BD;
+    blobAccount.totalGasUSD = ZERO_BD;
+    blobAccount.totalFeeUSD = ZERO_BD;
+    blobAccount.totalValueUSD = ZERO_BD;
+    blobAccount.totalBlobGasUSD = ZERO_BD;
     handleNewBlobsAccount(txn, blk);
   }
   //   let totalGasEth = ZERO_BD;
@@ -68,6 +72,24 @@ export function handleBlobsAccount(txn: BlobTransaction, blk: Block): void {
   );
   blobAccount.totalBlobGasEth = blobAccount.totalBlobGasEth.plus(
     totalBlobGasEth!
+  );
+  blobAccount.totalGasUSD = blobAccount.totalGasUSD.plus(
+    totalBlobGasEth!.times(
+      BigDecimal.fromString(blk.ethPriceChainlink.toString())
+    )
+  );
+  blobAccount.totalFeeUSD = blobAccount.totalFeeUSD.plus(
+    totalFeeEth!.times(BigDecimal.fromString(blk.ethPriceChainlink.toString()))
+  );
+  blobAccount.totalValueUSD = blobAccount.totalValueUSD.plus(
+    totalValueEth!.times(
+      BigDecimal.fromString(blk.ethPriceChainlink.toString())
+    )
+  );
+  blobAccount.totalBlobGasUSD = blobAccount.totalBlobGasUSD.plus(
+    totalBlobGasEth!.times(
+      BigDecimal.fromString(blk.ethPriceChainlink.toString())
+    )
   );
   const blocknumber = new BigDecimal(BigInt.fromU64(blk.number));
   if (blobAccount.lastUpdatedBlock !== null) {

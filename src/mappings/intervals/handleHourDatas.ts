@@ -4,8 +4,8 @@ import {
   BlobsHourData,
   BlobTransaction,
 } from "../../../generated/schema";
-import { Block } from "../../pb/sf/ethereum/type/v2/Block";
-import { TransactionTrace } from "../../pb/sf/ethereum/type/v2/TransactionTrace";
+import { Block } from "../../pb/sf/ethereum/type/v2/clone/Block";
+import { TransactionTrace } from "../../pb/sf/ethereum/type/v2/clone/TransactionTrace";
 import { ONE_BD, ZERO_BD } from "../../utils/constants";
 
 export function handleBlobsHourData(txn: BlobTransaction, blk: Block): void {
@@ -55,6 +55,10 @@ export function handleBlobsHourData(txn: BlobTransaction, blk: Block): void {
         blobsHourData.totalBlobGasEth = ZERO_BD;
         blobsHourData.totalFeeEth = ZERO_BD;
         blobsHourData.totalBlobBlocks = ZERO_BD;
+        blobsHourData.totalFeeUSD = ZERO_BD;
+        blobsHourData.totalGasUSD = ZERO_BD;
+        blobsHourData.totalValueUSD = ZERO_BD;
+        blobsHourData.totalBlobGasUSD = ZERO_BD;
         blobsHourData.hourStartTimestamp = new BigDecimal(hourStartTimestamp);
       }
       if (blobsHourDataPrev !== null) {
@@ -86,6 +90,26 @@ export function handleBlobsHourData(txn: BlobTransaction, blk: Block): void {
         blobsHourData.totalBlobHashesCount.plus(totalBlobHashesCount!);
       blobsHourData.totalBlobGasEth = blobsHourData.totalBlobGasEth.plus(
         totalBlobGasEth!
+      );
+      blobsHourData.totalGasUSD = blobsHourData.totalGasUSD.plus(
+        totalBlobGasEth!.times(
+          BigDecimal.fromString(blk.ethPriceChainlink.toString())
+        )
+      );
+      blobsHourData.totalFeeUSD = blobsHourData.totalFeeUSD.plus(
+        totalFeeEth!.times(
+          BigDecimal.fromString(blk.ethPriceChainlink.toString())
+        )
+      );
+      blobsHourData.totalValueUSD = blobsHourData.totalValueUSD.plus(
+        totalValueEth!.times(
+          BigDecimal.fromString(blk.ethPriceChainlink.toString())
+        )
+      );
+      blobsHourData.totalBlobGasUSD = blobsHourData.totalBlobGasUSD.plus(
+        totalBlobGasEth!.times(
+          BigDecimal.fromString(blk.ethPriceChainlink.toString())
+        )
       );
       const blocknumber = new BigDecimal(BigInt.fromU64(blk.number));
       if (blobsHourData.lastUpdatedBlock !== null) {

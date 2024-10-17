@@ -5,7 +5,7 @@ import {
   AccountHourData,
   BlobTransaction,
 } from "../../../generated/schema";
-import { Block } from "../../pb/sf/ethereum/type/v2/Block";
+import { Block } from "../../pb/sf/ethereum/type/v2/clone/Block";
 import { ONE_BD, ZERO_BD } from "../../utils/constants";
 
 export function handleAccountHourData(
@@ -59,6 +59,10 @@ export function handleAccountHourData(
         accounHourData.totalBlobBlocks = ZERO_BD;
         accounHourData.hourStartTimestamp = new BigDecimal(hourStartTimestamp);
         accounHourData.account = account.id;
+        accounHourData.totalGasUSD = ZERO_BD;
+        accounHourData.totalFeeUSD = ZERO_BD;
+        accounHourData.totalValueUSD = ZERO_BD;
+        accounHourData.totalBlobGasUSD = ZERO_BD;
       }
       accounHourData.account = account.id;
       if (accounHourDataPrev !== null) {
@@ -93,6 +97,26 @@ export function handleAccountHourData(
         accounHourData.totalBlobHashesCount.plus(totalBlobHashesCount!);
       accounHourData.totalBlobGasEth = accounHourData.totalBlobGasEth.plus(
         totalBlobGasEth!
+      );
+      accounHourData.totalGasUSD = accounHourData.totalGasUSD.plus(
+        totalBlobGasEth!.times(
+          BigDecimal.fromString(blk.ethPriceChainlink.toString())
+        )
+      );
+      accounHourData.totalFeeUSD = accounHourData.totalFeeUSD.plus(
+        totalFeeEth!.times(
+          BigDecimal.fromString(blk.ethPriceChainlink.toString())
+        )
+      );
+      accounHourData.totalValueUSD = accounHourData.totalValueUSD.plus(
+        totalValueEth!.times(
+          BigDecimal.fromString(blk.ethPriceChainlink.toString())
+        )
+      );
+      accounHourData.totalBlobGasUSD = accounHourData.totalBlobGasUSD.plus(
+        totalBlobGasEth!.times(
+          BigDecimal.fromString(blk.ethPriceChainlink.toString())
+        )
       );
       const blocknumber = new BigDecimal(BigInt.fromU64(blk.number));
       if (accounHourData.lastUpdatedBlock !== null) {

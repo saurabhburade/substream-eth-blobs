@@ -36,7 +36,7 @@ modules: # specify modules with their inputs and outputs.
 
   - name: map_block_full
     kind: map
-    initialBlock: 19426500
+    initialBlock: 19426947
     inputs:
       - source: sf.ethereum.type.v2.Block
     output:
@@ -46,7 +46,7 @@ modules: # specify modules with their inputs and outputs.
 
   - name: map_blob_transactions
     kind: map
-    initialBlock: 19426500
+    initialBlock: 19426947
     inputs:
       - source: proto:pb.sf.ethereum.type.v2.Block
     output:
