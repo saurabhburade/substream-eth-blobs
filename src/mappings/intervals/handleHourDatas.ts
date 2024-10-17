@@ -1,4 +1,4 @@
-import { BigDecimal, BigInt } from "@graphprotocol/graph-ts";
+import { BigDecimal, BigInt, Bytes } from "@graphprotocol/graph-ts";
 import {
   BlobsDayData,
   BlobsHourData,
@@ -61,6 +61,8 @@ export function handleBlobsHourData(txn: BlobTransaction, blk: Block): void {
         blobsHourData.totalBlobGasUSD = ZERO_BD;
         blobsHourData.currentEthPrice = ZERO_BD;
         blobsHourData.avgEthPrice = ZERO_BD;
+        blobsHourData.totalFeeBurnedETH = ZERO_BD;
+        blobsHourData.totalFeeBurnedUSD = ZERO_BD;
         blobsHourData.hourStartTimestamp = new BigDecimal(hourStartTimestamp);
       }
       if (blobsHourDataPrev !== null) {
@@ -119,7 +121,24 @@ export function handleBlobsHourData(txn: BlobTransaction, blk: Block): void {
       blobsHourData.avgEthPrice = blobsHourData.avgEthPrice
         .plus(BigDecimal.fromString(blk.ethPriceChainlink.toString()))
         .div(BigDecimal.fromString("2"));
-
+      if (blk.header !== null) {
+        if (blk.header!.baseFeePerGas !== null) {
+          const baseFeePerGasHex = Bytes.fromUint8Array(
+            blk.header!.baseFeePerGas!.bytes!
+          ).toHexString();
+          const baseFeePerGasHexNumber = parseInt(baseFeePerGasHex, 16);
+          blobsHourData.totalFeeBurnedETH =
+            blobsHourData.totalFeeBurnedETH.plus(
+              BigDecimal.fromString(baseFeePerGasHexNumber.toString()).times(
+                txn.gasUsed!
+              )
+            );
+          blobsHourData.totalFeeBurnedUSD =
+            blobsHourData.totalFeeBurnedUSD.plus(
+              blobsHourData.totalFeeBurnedETH
+            );
+        }
+      }
       const blocknumber = new BigDecimal(BigInt.fromU64(blk.number));
       if (blobsHourData.lastUpdatedBlock !== null) {
         if (blocknumber.equals(blobsHourData.lastUpdatedBlock!)) {

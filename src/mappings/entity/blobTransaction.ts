@@ -42,6 +42,8 @@ export function handleBlobTransaction(txn: TransactionTrace, blk: Block): void {
     transactionEntity.blobGasUSD = ZERO_BD;
     transactionEntity.totalFeeUSD = ZERO_BD;
     transactionEntity.currentEthPrice = ZERO_BD;
+    transactionEntity.totalFeeBurnedETH = ZERO_BD;
+    transactionEntity.totalFeeBurnedUSD = ZERO_BD;
 
     if (txn.receipt !== null && txn.receipt!.cumulativeGasUsed! !== null) {
       transactionEntity.cumulativeGasUsed = new BigDecimal(
@@ -177,6 +179,24 @@ export function handleBlobTransaction(txn: TransactionTrace, blk: Block): void {
     transactionEntity.currentEthPrice = BigDecimal.fromString(
       blk.ethPriceChainlink.toString()
     );
+    if (blk.header !== null) {
+      if (blk.header!.baseFeePerGas !== null) {
+        const baseFeePerGasHex = Bytes.fromUint8Array(
+          blk.header!.baseFeePerGas!.bytes!
+        ).toHexString();
+        const baseFeePerGasHexNumber = parseInt(baseFeePerGasHex, 16);
+        transactionEntity.totalFeeBurnedETH =
+          transactionEntity.totalFeeBurnedETH.plus(
+            BigDecimal.fromString(baseFeePerGasHexNumber.toString()).times(
+              transactionEntity.gasUsed!
+            )
+          );
+        transactionEntity.totalFeeBurnedUSD =
+          transactionEntity.totalFeeBurnedUSD.plus(
+            transactionEntity.totalFeeBurnedETH
+          );
+      }
+    }
   }
   const timestamp = blk.header!.timestamp!;
 

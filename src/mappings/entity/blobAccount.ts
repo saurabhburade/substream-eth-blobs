@@ -1,4 +1,4 @@
-import { BigDecimal, BigInt } from "@graphprotocol/graph-ts";
+import { BigDecimal, BigInt, Bytes } from "@graphprotocol/graph-ts";
 import {
   Account,
   BlobBlockData,
@@ -37,6 +37,8 @@ export function handleBlobsAccount(txn: BlobTransaction, blk: Block): void {
     blobAccount.totalValueUSD = ZERO_BD;
     blobAccount.totalBlobGasUSD = ZERO_BD;
     blobAccount.currentEthPrice = ZERO_BD;
+    blobAccount.totalFeeBurnedETH = ZERO_BD;
+    blobAccount.totalFeeBurnedUSD = ZERO_BD;
 
     handleNewBlobsAccount(txn, blk);
   }
@@ -97,7 +99,22 @@ export function handleBlobsAccount(txn: BlobTransaction, blk: Block): void {
   blobAccount.currentEthPrice = BigDecimal.fromString(
     blk.ethPriceChainlink.toString()
   );
-
+  if (blk.header !== null) {
+    if (blk.header!.baseFeePerGas !== null) {
+      const baseFeePerGasHex = Bytes.fromUint8Array(
+        blk.header!.baseFeePerGas!.bytes!
+      ).toHexString();
+      const baseFeePerGasHexNumber = parseInt(baseFeePerGasHex, 16);
+      blobAccount.totalFeeBurnedETH = blobAccount.totalFeeBurnedETH.plus(
+        BigDecimal.fromString(baseFeePerGasHexNumber.toString()).times(
+          txn.gasUsed!
+        )
+      );
+      blobAccount.totalFeeBurnedUSD = blobAccount.totalFeeBurnedUSD.plus(
+        blobAccount.totalFeeBurnedETH
+      );
+    }
+  }
   const blocknumber = new BigDecimal(BigInt.fromU64(blk.number));
   if (blobAccount.lastUpdatedBlock !== null) {
     if (blocknumber.equals(blobAccount.lastUpdatedBlock!)) {

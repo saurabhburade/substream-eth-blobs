@@ -32,6 +32,8 @@ type BlobTransaction @entity {
   cumulativeGasUsed: BigDecimal
   totalFeeEth: BigDecimal
   totalFeeUSD: BigDecimal!
+  totalFeeBurnedETH: BigDecimal!
+  totalFeeBurnedUSD: BigDecimal!
   # type: String!  # Replace with actual Type if it's an enum or another type
   # accessList: [AccessTuple!]!
   maxFeePerGas: BigDecimal
@@ -70,7 +72,8 @@ type CollectiveData @entity {
   totalValue: BigDecimal!
   totalValueEth: BigDecimal!
   totalValueUSD: BigDecimal!
-
+  totalFeeBurnedETH: BigDecimal!
+  totalFeeBurnedUSD: BigDecimal!
   totalGasUsed: BigDecimal!
   totalCumulativeGasUsed: BigDecimal!
 
@@ -98,7 +101,8 @@ type BlobBlockData @entity {
   totalValue: BigDecimal!
   totalValueEth: BigDecimal!
   totalValueUSD: BigDecimal!
-
+  totalFeeBurnedETH: BigDecimal!
+  totalFeeBurnedUSD: BigDecimal!
   totalGasUsed: BigDecimal!
   totalCumulativeGasUsed: BigDecimal!
 
@@ -125,7 +129,8 @@ type BlobsDayData @entity {
   totalValue: BigDecimal!
   totalValueEth: BigDecimal!
   totalValueUSD: BigDecimal!
-
+  totalFeeBurnedETH: BigDecimal!
+  totalFeeBurnedUSD: BigDecimal!
   totalGasUsed: BigDecimal!
   totalCumulativeGasUsed: BigDecimal!
 
@@ -152,7 +157,8 @@ type BlobsHourData @entity {
   totalValue: BigDecimal!
   totalValueEth: BigDecimal!
   totalValueUSD: BigDecimal!
-
+  totalFeeBurnedETH: BigDecimal!
+  totalFeeBurnedUSD: BigDecimal!
   totalGasUsed: BigDecimal!
   totalCumulativeGasUsed: BigDecimal!
 
@@ -179,7 +185,8 @@ type Account @entity {
   totalValue: BigDecimal!
   totalValueEth: BigDecimal!
   totalValueUSD: BigDecimal!
-
+  totalFeeBurnedETH: BigDecimal!
+  totalFeeBurnedUSD: BigDecimal!
   totalGasUsed: BigDecimal!
   totalCumulativeGasUsed: BigDecimal!
 
@@ -204,7 +211,8 @@ type AccountDayData @entity {
   totalValue: BigDecimal!
   totalValueEth: BigDecimal!
   totalValueUSD: BigDecimal!
-
+  totalFeeBurnedETH: BigDecimal!
+  totalFeeBurnedUSD: BigDecimal!
   totalGasUsed: BigDecimal!
   totalCumulativeGasUsed: BigDecimal!
 
@@ -231,7 +239,8 @@ type AccountHourData @entity {
   totalValue: BigDecimal!
   totalValueEth: BigDecimal!
   totalValueUSD: BigDecimal!
-
+  totalFeeBurnedETH: BigDecimal!
+  totalFeeBurnedUSD: BigDecimal!
   totalGasUsed: BigDecimal!
   totalCumulativeGasUsed: BigDecimal!
 

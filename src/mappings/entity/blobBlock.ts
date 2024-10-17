@@ -68,6 +68,8 @@ export function handleBlobBlockRegular(
     blobBlock.totalBlobGasUSD = ZERO_BD;
     blobBlock.avgEthPrice = ZERO_BD;
     blobBlock.currentEthPrice = ZERO_BD;
+    blobBlock.totalFeeBurnedETH = ZERO_BD;
+    blobBlock.totalFeeBurnedUSD = ZERO_BD;
   }
   //   txn.gasPrice!;
   if (txn.gasPrice !== null) {
@@ -97,6 +99,22 @@ export function handleBlobBlockRegular(
     .div(BigDecimal.fromString("2"));
   blobBlock.totalTransactionCount =
     blobBlock.totalTransactionCount.plus(ONE_BD);
+  if (blk.header !== null) {
+    if (blk.header!.baseFeePerGas !== null) {
+      const baseFeePerGasHex = Bytes.fromUint8Array(
+        blk.header!.baseFeePerGas!.bytes!
+      ).toHexString();
+      const baseFeePerGasHexNumber = parseInt(baseFeePerGasHex, 16);
+      blobBlock.totalFeeBurnedETH = blobBlock.totalFeeBurnedETH.plus(
+        BigDecimal.fromString(baseFeePerGasHexNumber.toString()).times(
+          new BigDecimal(BigInt.fromI64(txn.gasUsed!))
+        )
+      );
+      blobBlock.totalFeeBurnedUSD = blobBlock.totalFeeBurnedUSD.plus(
+        blobBlock.totalFeeBurnedETH
+      );
+    }
+  }
   blobBlock.save();
 }
 export function handleBlobBlockBlobs(txn: BlobTransaction, blk: Block): void {
@@ -130,6 +148,8 @@ export function handleBlobBlockBlobs(txn: BlobTransaction, blk: Block): void {
     blobBlock.totalBlobGasUSD = ZERO_BD;
     blobBlock.currentEthPrice = ZERO_BD;
     blobBlock.avgEthPrice = ZERO_BD;
+    blobBlock.totalFeeBurnedETH = ZERO_BD;
+    blobBlock.totalFeeBurnedUSD = ZERO_BD;
   }
   blobBlock.totalTransactionCount =
     blobBlock.totalTransactionCount.plus(ONE_BD);
@@ -188,6 +208,22 @@ export function handleBlobBlockBlobs(txn: BlobTransaction, blk: Block): void {
   blobBlock.currentEthPrice = BigDecimal.fromString(
     blk.ethPriceChainlink.toString()
   );
+  if (blk.header !== null) {
+    if (blk.header!.baseFeePerGas !== null) {
+      const baseFeePerGasHex = Bytes.fromUint8Array(
+        blk.header!.baseFeePerGas!.bytes!
+      ).toHexString();
+      const baseFeePerGasHexNumber = parseInt(baseFeePerGasHex, 16);
+      blobBlock.totalFeeBurnedETH = blobBlock.totalFeeBurnedETH.plus(
+        BigDecimal.fromString(baseFeePerGasHexNumber.toString()).times(
+          txn.gasUsed!
+        )
+      );
+      blobBlock.totalFeeBurnedUSD = blobBlock.totalFeeBurnedUSD.plus(
+        blobBlock.totalFeeBurnedETH
+      );
+    }
+  }
   blobBlock.avgEthPrice = blobBlock.avgEthPrice
     .plus(BigDecimal.fromString(blk.ethPriceChainlink.toString()))
     .div(BigDecimal.fromString("2"));

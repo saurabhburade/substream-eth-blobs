@@ -1,4 +1,4 @@
-import { BigDecimal, BigInt } from "@graphprotocol/graph-ts";
+import { BigDecimal, BigInt, Bytes } from "@graphprotocol/graph-ts";
 import {
   Account,
   AccountDayData,
@@ -63,6 +63,8 @@ export function handleAccountDayData(
         accountDayData.totalValueUSD = ZERO_BD;
         accountDayData.totalBlobGasUSD = ZERO_BD;
         accountDayData.currentEthPrice = ZERO_BD;
+        accountDayData.totalFeeBurnedETH = ZERO_BD;
+        accountDayData.totalFeeBurnedUSD = ZERO_BD;
       }
       accountDayData.account = account.id;
 
@@ -122,7 +124,24 @@ export function handleAccountDayData(
       accountDayData.currentEthPrice = BigDecimal.fromString(
         blk.ethPriceChainlink.toString()
       );
-
+      if (blk.header !== null) {
+        if (blk.header!.baseFeePerGas !== null) {
+          const baseFeePerGasHex = Bytes.fromUint8Array(
+            blk.header!.baseFeePerGas!.bytes!
+          ).toHexString();
+          const baseFeePerGasHexNumber = parseInt(baseFeePerGasHex, 16);
+          accountDayData.totalFeeBurnedETH =
+            accountDayData.totalFeeBurnedETH.plus(
+              BigDecimal.fromString(baseFeePerGasHexNumber.toString()).times(
+                txn.gasUsed!
+              )
+            );
+          accountDayData.totalFeeBurnedUSD =
+            accountDayData.totalFeeBurnedUSD.plus(
+              accountDayData.totalFeeBurnedETH
+            );
+        }
+      }
       const blocknumber = new BigDecimal(BigInt.fromU64(blk.number));
       if (accountDayData.lastUpdatedBlock !== null) {
         if (blocknumber.equals(accountDayData.lastUpdatedBlock!)) {
