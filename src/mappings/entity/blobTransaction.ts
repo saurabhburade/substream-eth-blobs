@@ -7,8 +7,8 @@ import {
   Value,
 } from "@graphprotocol/graph-ts";
 import { BlobTransaction } from "../../../generated/schema";
-import { Block } from "../../pb/sf/ethereum/type/v2/Block";
-import { TransactionTrace } from "../../pb/sf/ethereum/type/v2/TransactionTrace";
+import { Block } from "../../pb/sf/ethereum/type/v2/clone/Block";
+import { TransactionTrace } from "../../pb/sf/ethereum/type/v2/clone/TransactionTrace";
 import { ZERO_BD, ZERO_BI } from "../../utils/constants";
 import { handleBlobsCollective } from "./collectiveData";
 import { handleBlobBlockBlobs } from "./blobBlock";
@@ -38,6 +38,12 @@ export function handleBlobTransaction(txn: TransactionTrace, blk: Block): void {
     transactionEntity.input = input;
     transactionEntity.status = BigDecimal.fromString(txn.status.toString());
     transactionEntity.blockNumber = blockNumber;
+
+    transactionEntity.blobGasUSD = ZERO_BD;
+    transactionEntity.totalFeeUSD = ZERO_BD;
+    transactionEntity.currentEthPrice = ZERO_BD;
+    transactionEntity.totalFeeBurnedETH = ZERO_BD;
+    transactionEntity.totalFeeBurnedUSD = ZERO_BD;
 
     if (txn.receipt !== null && txn.receipt!.cumulativeGasUsed! !== null) {
       transactionEntity.cumulativeGasUsed = new BigDecimal(
@@ -69,6 +75,7 @@ export function handleBlobTransaction(txn: TransactionTrace, blk: Block): void {
     transactionEntity.blobHashesLength = BigDecimal.fromString(
       hashes.length.toString()
     );
+    log.info("BEFORE :: txn.gasPrice", []);
 
     // transactionEntity.gasPrice = new BigInt(txn.gasPrice);
     if (txn.gasPrice !== null) {
@@ -93,13 +100,21 @@ export function handleBlobTransaction(txn: TransactionTrace, blk: Block): void {
         );
       }
     }
+    log.info("BEFORE :: txn.value", []);
+
     if (txn.value !== null) {
-      if (txn.value!.bytes !== null) {
+      if (txn.value!.bytes! !== null && txn.value!.bytes!.toString() !== "") {
         const valueHex = Bytes.fromUint8Array(txn.value!.bytes!).toHexString();
         const valueNumber = parseInt(valueHex, 16);
+        log.info("BEFORE :: txn.valueNumber {} hex {} vb {}", [
+          valueNumber.toString(),
+          valueHex,
+          txn.value!.bytes.toString(),
+        ]);
         transactionEntity.value = BigDecimal.fromString(valueNumber.toString());
       }
     }
+    log.info("BEFORE :: txn.blobGasFeeCap", []);
 
     if (txn.blobGasFeeCap !== null) {
       if (txn.blobGasFeeCap!.bytes !== null) {
@@ -112,6 +127,8 @@ export function handleBlobTransaction(txn: TransactionTrace, blk: Block): void {
         );
       }
     }
+    log.info("BEFORE :: txn.maxFeePerGas", []);
+
     if (txn.maxFeePerGas !== null) {
       if (txn.maxFeePerGas!.bytes !== null) {
         const maxFeePerGasHex = Bytes.fromUint8Array(
@@ -123,6 +140,8 @@ export function handleBlobTransaction(txn: TransactionTrace, blk: Block): void {
         );
       }
     }
+    log.info("BEFORE :: txn.maxPriorityFeePerGas", []);
+
     if (txn.maxPriorityFeePerGas !== null) {
       if (txn.maxPriorityFeePerGas!.bytes !== null) {
         const maxPriorityFeePerGasHex = Bytes.fromUint8Array(
@@ -137,6 +156,8 @@ export function handleBlobTransaction(txn: TransactionTrace, blk: Block): void {
         );
       }
     }
+    log.info("BEFORE :: totalBlobGasEth", []);
+
     const totalBlobGasEth =
       transactionEntity.blobGas!.times(transactionEntity.blobGasPrice!) ||
       ZERO_BD;
@@ -144,6 +165,38 @@ export function handleBlobTransaction(txn: TransactionTrace, blk: Block): void {
     const totalFeeEth =
       transactionEntity.gasUsed!.times(transactionEntity.gasPrice!) || ZERO_BD;
     transactionEntity.totalFeeEth = totalFeeEth;
+
+    if (totalBlobGasEth !== null) {
+      transactionEntity.blobGasUSD = BigDecimal.fromString(
+        blk.ethPriceChainlink.toString()
+      ).times(totalBlobGasEth);
+    }
+    if (totalFeeEth !== null) {
+      transactionEntity.totalFeeUSD = BigDecimal.fromString(
+        blk.ethPriceChainlink.toString()
+      ).times(totalFeeEth);
+    }
+    transactionEntity.currentEthPrice = BigDecimal.fromString(
+      blk.ethPriceChainlink.toString()
+    );
+    if (blk.header !== null) {
+      if (blk.header!.baseFeePerGas !== null) {
+        const baseFeePerGasHex = Bytes.fromUint8Array(
+          blk.header!.baseFeePerGas!.bytes!
+        ).toHexString();
+        const baseFeePerGasHexNumber = parseInt(baseFeePerGasHex, 16);
+        transactionEntity.totalFeeBurnedETH =
+          transactionEntity.totalFeeBurnedETH.plus(
+            BigDecimal.fromString(baseFeePerGasHexNumber.toString()).times(
+              transactionEntity.gasUsed!
+            )
+          );
+        transactionEntity.totalFeeBurnedUSD =
+          transactionEntity.totalFeeBurnedUSD.plus(
+            transactionEntity.totalFeeBurnedETH
+          );
+      }
+    }
   }
   const timestamp = blk.header!.timestamp!;
 

@@ -4,8 +4,8 @@ import {
   BlobsDayData,
   BlobTransaction,
 } from "../../../generated/schema";
-import { Block } from "../../pb/sf/ethereum/type/v2/Block";
-import { TransactionTrace } from "../../pb/sf/ethereum/type/v2/TransactionTrace";
+import { Block } from "../../pb/sf/ethereum/type/v2/clone/Block";
+import { TransactionTrace } from "../../pb/sf/ethereum/type/v2/clone/TransactionTrace";
 import { ONE_BD, ZERO_BD } from "../../utils/constants";
 
 export function handleBlobBlockRegular(
@@ -61,6 +61,15 @@ export function handleBlobBlockRegular(
     blobBlock.timestamp = new BigDecimal(BigInt.fromI64(timestamp.seconds));
 
     blobBlock.totalBlockFeeEth = ZERO_BD;
+    blobBlock.totalBlockFeeUSD = ZERO_BD;
+    blobBlock.totalGasUSD = ZERO_BD;
+    blobBlock.totalFeeUSD = ZERO_BD;
+    blobBlock.totalValueUSD = ZERO_BD;
+    blobBlock.totalBlobGasUSD = ZERO_BD;
+    blobBlock.avgEthPrice = ZERO_BD;
+    blobBlock.currentEthPrice = ZERO_BD;
+    blobBlock.totalFeeBurnedETH = ZERO_BD;
+    blobBlock.totalFeeBurnedUSD = ZERO_BD;
   }
   //   txn.gasPrice!;
   if (txn.gasPrice !== null) {
@@ -75,11 +84,37 @@ export function handleBlobBlockRegular(
       const totalGasEth =
         new BigDecimal(BigInt.fromU64(txn.gasUsed!)).times(gasPrice) || ZERO_BD;
       blobBlock.totalBlockFeeEth = blobBlock.totalBlockFeeEth.plus(totalGasEth);
+      blobBlock.totalBlockFeeUSD = blobBlock.totalBlockFeeUSD.plus(
+        totalGasEth.times(
+          BigDecimal.fromString(blk.ethPriceChainlink.toString())
+        )
+      );
     }
   }
-
+  blobBlock.currentEthPrice = BigDecimal.fromString(
+    blk.ethPriceChainlink.toString()
+  );
+  blobBlock.avgEthPrice = blobBlock.avgEthPrice
+    .plus(BigDecimal.fromString(blk.ethPriceChainlink.toString()))
+    .div(BigDecimal.fromString("2"));
   blobBlock.totalTransactionCount =
     blobBlock.totalTransactionCount.plus(ONE_BD);
+  if (blk.header !== null) {
+    if (blk.header!.baseFeePerGas !== null) {
+      const baseFeePerGasHex = Bytes.fromUint8Array(
+        blk.header!.baseFeePerGas!.bytes!
+      ).toHexString();
+      const baseFeePerGasHexNumber = parseInt(baseFeePerGasHex, 16);
+      blobBlock.totalFeeBurnedETH = blobBlock.totalFeeBurnedETH.plus(
+        BigDecimal.fromString(baseFeePerGasHexNumber.toString()).times(
+          new BigDecimal(BigInt.fromI64(txn.gasUsed!))
+        )
+      );
+      blobBlock.totalFeeBurnedUSD = blobBlock.totalFeeBurnedUSD.plus(
+        blobBlock.totalFeeBurnedETH
+      );
+    }
+  }
   blobBlock.save();
 }
 export function handleBlobBlockBlobs(txn: BlobTransaction, blk: Block): void {
@@ -106,6 +141,15 @@ export function handleBlobBlockBlobs(txn: BlobTransaction, blk: Block): void {
 
     blobBlock.timestamp = new BigDecimal(BigInt.fromI64(timestamp.seconds));
     blobBlock.totalBlockFeeEth = ZERO_BD;
+    blobBlock.totalBlockFeeUSD = ZERO_BD;
+    blobBlock.totalGasUSD = ZERO_BD;
+    blobBlock.totalFeeUSD = ZERO_BD;
+    blobBlock.totalValueUSD = ZERO_BD;
+    blobBlock.totalBlobGasUSD = ZERO_BD;
+    blobBlock.currentEthPrice = ZERO_BD;
+    blobBlock.avgEthPrice = ZERO_BD;
+    blobBlock.totalFeeBurnedETH = ZERO_BD;
+    blobBlock.totalFeeBurnedUSD = ZERO_BD;
   }
   blobBlock.totalTransactionCount =
     blobBlock.totalTransactionCount.plus(ONE_BD);
@@ -124,6 +168,9 @@ export function handleBlobBlockBlobs(txn: BlobTransaction, blk: Block): void {
 
   blobBlock.totalGasEth = blobBlock.totalGasEth.plus(totalGasEth!);
   blobBlock.totalBlockFeeEth = blobBlock.totalBlockFeeEth.plus(totalGasEth);
+  blobBlock.totalBlockFeeUSD = blobBlock.totalBlockFeeUSD.plus(
+    totalGasEth.times(BigDecimal.fromString(blk.ethPriceChainlink.toString()))
+  );
   blobBlock.totalFeeEth = blobBlock.totalFeeEth.plus(totalFeeEth!);
   blobBlock.totalValue = blobBlock.totalValue.plus(totalValue!);
   blobBlock.totalValueEth = blobBlock.totalValueEth.plus(totalValueEth!);
@@ -140,5 +187,46 @@ export function handleBlobBlockBlobs(txn: BlobTransaction, blk: Block): void {
     totalBlobHashesCount!
   );
   blobBlock.totalBlobGasEth = blobBlock.totalBlobGasEth.plus(totalBlobGasEth!);
+  blobBlock.totalGasUSD = blobBlock.totalGasUSD.plus(
+    totalBlobGasEth!.times(
+      BigDecimal.fromString(blk.ethPriceChainlink.toString())
+    )
+  );
+  blobBlock.totalFeeUSD = blobBlock.totalFeeUSD.plus(
+    totalFeeEth!.times(BigDecimal.fromString(blk.ethPriceChainlink.toString()))
+  );
+  blobBlock.totalValueUSD = blobBlock.totalValueUSD.plus(
+    totalValueEth!.times(
+      BigDecimal.fromString(blk.ethPriceChainlink.toString())
+    )
+  );
+  blobBlock.totalBlobGasUSD = blobBlock.totalBlobGasUSD.plus(
+    totalBlobGasEth!.times(
+      BigDecimal.fromString(blk.ethPriceChainlink.toString())
+    )
+  );
+  blobBlock.currentEthPrice = BigDecimal.fromString(
+    blk.ethPriceChainlink.toString()
+  );
+  if (blk.header !== null) {
+    if (blk.header!.baseFeePerGas !== null) {
+      const baseFeePerGasHex = Bytes.fromUint8Array(
+        blk.header!.baseFeePerGas!.bytes!
+      ).toHexString();
+      const baseFeePerGasHexNumber = parseInt(baseFeePerGasHex, 16);
+      blobBlock.totalFeeBurnedETH = blobBlock.totalFeeBurnedETH.plus(
+        BigDecimal.fromString(baseFeePerGasHexNumber.toString()).times(
+          txn.gasUsed!
+        )
+      );
+      blobBlock.totalFeeBurnedUSD = blobBlock.totalFeeBurnedUSD.plus(
+        blobBlock.totalFeeBurnedETH
+      );
+    }
+  }
+  blobBlock.avgEthPrice = blobBlock.avgEthPrice
+    .plus(BigDecimal.fromString(blk.ethPriceChainlink.toString()))
+    .div(BigDecimal.fromString("2"));
+
   blobBlock.save();
 }

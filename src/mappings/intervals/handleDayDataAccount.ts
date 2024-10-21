@@ -1,10 +1,10 @@
-import { BigDecimal, BigInt } from "@graphprotocol/graph-ts";
+import { BigDecimal, BigInt, Bytes } from "@graphprotocol/graph-ts";
 import {
   Account,
   AccountDayData,
   BlobTransaction,
 } from "../../../generated/schema";
-import { Block } from "../../pb/sf/ethereum/type/v2/Block";
+import { Block } from "../../pb/sf/ethereum/type/v2/clone/Block";
 import { ONE_BD, ZERO_BD } from "../../utils/constants";
 
 export function handleAccountDayData(
@@ -58,6 +58,13 @@ export function handleAccountDayData(
         accountDayData.totalBlobBlocks = ZERO_BD;
         accountDayData.dayStartTimestamp = new BigDecimal(dayStartTimestamp);
         accountDayData.account = account.id;
+        accountDayData.totalGasUSD = ZERO_BD;
+        accountDayData.totalFeeUSD = ZERO_BD;
+        accountDayData.totalValueUSD = ZERO_BD;
+        accountDayData.totalBlobGasUSD = ZERO_BD;
+        accountDayData.currentEthPrice = ZERO_BD;
+        accountDayData.totalFeeBurnedETH = ZERO_BD;
+        accountDayData.totalFeeBurnedUSD = ZERO_BD;
       }
       accountDayData.account = account.id;
 
@@ -94,6 +101,47 @@ export function handleAccountDayData(
       accountDayData.totalBlobGasEth = accountDayData.totalBlobGasEth.plus(
         totalBlobGasEth!
       );
+      accountDayData.totalGasUSD = accountDayData.totalGasUSD.plus(
+        totalBlobGasEth!.times(
+          BigDecimal.fromString(blk.ethPriceChainlink.toString())
+        )
+      );
+      accountDayData.totalFeeUSD = accountDayData.totalFeeUSD.plus(
+        totalFeeEth!.times(
+          BigDecimal.fromString(blk.ethPriceChainlink.toString())
+        )
+      );
+      accountDayData.totalValueUSD = accountDayData.totalValueUSD.plus(
+        totalValueEth!.times(
+          BigDecimal.fromString(blk.ethPriceChainlink.toString())
+        )
+      );
+      accountDayData.totalBlobGasUSD = accountDayData.totalBlobGasUSD.plus(
+        totalBlobGasEth!.times(
+          BigDecimal.fromString(blk.ethPriceChainlink.toString())
+        )
+      );
+      accountDayData.currentEthPrice = BigDecimal.fromString(
+        blk.ethPriceChainlink.toString()
+      );
+      if (blk.header !== null) {
+        if (blk.header!.baseFeePerGas !== null) {
+          const baseFeePerGasHex = Bytes.fromUint8Array(
+            blk.header!.baseFeePerGas!.bytes!
+          ).toHexString();
+          const baseFeePerGasHexNumber = parseInt(baseFeePerGasHex, 16);
+          accountDayData.totalFeeBurnedETH =
+            accountDayData.totalFeeBurnedETH.plus(
+              BigDecimal.fromString(baseFeePerGasHexNumber.toString()).times(
+                txn.gasUsed!
+              )
+            );
+          accountDayData.totalFeeBurnedUSD =
+            accountDayData.totalFeeBurnedUSD.plus(
+              accountDayData.totalFeeBurnedETH
+            );
+        }
+      }
       const blocknumber = new BigDecimal(BigInt.fromU64(blk.number));
       if (accountDayData.lastUpdatedBlock !== null) {
         if (blocknumber.equals(accountDayData.lastUpdatedBlock!)) {

@@ -10,6 +10,7 @@ imports: # dependencies
 protobuf: # specifies custom types for use by Substreams modules
   files:
     - example.proto
+    - ethV2.proto
   importPaths:
     - ./proto
 
@@ -35,21 +36,21 @@ modules: # specify modules with their inputs and outputs.
 
   - name: map_block_full
     kind: map
-    initialBlock: 19426500
+    initialBlock: 19426947
     inputs:
       - source: sf.ethereum.type.v2.Block
     output:
-      type: proto:sf.ethereum.type.v2.Block
+      type:  proto:pb.sf.ethereum.type.v2.clone.Block
     doc: |
       `map_block_full` allows you to view a complete block, as received by a Substreams module     
 
   - name: map_blob_transactions
     kind: map
-    initialBlock: 19426500
+    initialBlock: 19426947
     inputs:
-      - source: sf.ethereum.type.v2.Block
+      - source: proto:pb.sf.ethereum.type.v2.Block
     output:
-      type:   proto:sf.ethereum.type.v2.Block
+      type:    proto:pb.sf.ethereum.type.v2.Block
     doc: |
       `map_block_full` allows you to view a complete block, as received by a Substreams module     
       

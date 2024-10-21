@@ -1,7 +1,7 @@
-import { BigDecimal, BigInt } from "@graphprotocol/graph-ts";
+import { BigDecimal, BigInt, Bytes } from "@graphprotocol/graph-ts";
 import { BlobTransaction, CollectiveData } from "../../../generated/schema";
-import { Block } from "../../pb/sf/ethereum/type/v2/Block";
-import { TransactionTrace } from "../../pb/sf/ethereum/type/v2/TransactionTrace";
+import { Block } from "../../pb/sf/ethereum/type/v2/clone/Block";
+import { TransactionTrace } from "../../pb/sf/ethereum/type/v2/clone/TransactionTrace";
 import { ONE_BD, ZERO_BD, ZERO_BI } from "../../utils/constants";
 import { handleBlobsDayData } from "../intervals/handleDayDatas";
 import { handleBlobsHourData } from "../intervals/handleHourDatas";
@@ -22,6 +22,14 @@ export function handleBlobsCollective(txn: BlobTransaction, blk: Block): void {
     collectiveData.totalBlobHashesCount = ZERO_BD;
     collectiveData.totalBlobGasEth = ZERO_BD;
     collectiveData.totalBlobBlocks = ZERO_BD;
+    collectiveData.totalFeeUSD = ZERO_BD;
+    collectiveData.totalGasUSD = ZERO_BD;
+    collectiveData.totalValueUSD = ZERO_BD;
+    collectiveData.totalBlobGasUSD = ZERO_BD;
+    collectiveData.avgEthPrice = ZERO_BD;
+    collectiveData.currentEthPrice = ZERO_BD;
+    collectiveData.totalFeeBurnedETH = ZERO_BD;
+    collectiveData.totalFeeBurnedUSD = ZERO_BD;
   }
   //   let totalGasEth = ZERO_BD;
   //     if (txn.gasUsed !== null && ) {
@@ -58,6 +66,24 @@ export function handleBlobsCollective(txn: BlobTransaction, blk: Block): void {
   collectiveData.totalBlobGasEth = collectiveData.totalBlobGasEth.plus(
     totalBlobGasEth!
   );
+  collectiveData.totalGasUSD = collectiveData.totalGasUSD.plus(
+    totalBlobGasEth!.times(
+      BigDecimal.fromString(blk.ethPriceChainlink.toString())
+    )
+  );
+  collectiveData.totalFeeUSD = collectiveData.totalFeeUSD.plus(
+    totalFeeEth!.times(BigDecimal.fromString(blk.ethPriceChainlink.toString()))
+  );
+  collectiveData.totalValueUSD = collectiveData.totalValueUSD.plus(
+    totalValueEth!.times(
+      BigDecimal.fromString(blk.ethPriceChainlink.toString())
+    )
+  );
+  collectiveData.totalBlobGasUSD = collectiveData.totalBlobGasUSD.plus(
+    totalBlobGasEth!.times(
+      BigDecimal.fromString(blk.ethPriceChainlink.toString())
+    )
+  );
   const blocknumber = new BigDecimal(BigInt.fromU64(blk.number));
   if (collectiveData.lastUpdatedBlock !== null) {
     if (blocknumber.equals(collectiveData.lastUpdatedBlock!)) {
@@ -71,6 +97,28 @@ export function handleBlobsCollective(txn: BlobTransaction, blk: Block): void {
     collectiveData.lastUpdatedBlock = blocknumber;
     collectiveData.totalBlobBlocks =
       collectiveData.totalBlobBlocks!.plus(ONE_BD);
+  }
+  collectiveData.currentEthPrice = BigDecimal.fromString(
+    blk.ethPriceChainlink.toString()
+  );
+  collectiveData.avgEthPrice = collectiveData.avgEthPrice
+    .plus(BigDecimal.fromString(blk.ethPriceChainlink.toString()))
+    .div(BigDecimal.fromString("2"));
+  if (blk.header !== null) {
+    if (blk.header!.baseFeePerGas !== null) {
+      const baseFeePerGasHex = Bytes.fromUint8Array(
+        blk.header!.baseFeePerGas!.bytes!
+      ).toHexString();
+      const baseFeePerGasHexNumber = parseInt(baseFeePerGasHex, 16);
+      collectiveData.totalFeeBurnedETH = collectiveData.totalFeeBurnedETH.plus(
+        BigDecimal.fromString(baseFeePerGasHexNumber.toString()).times(
+          txn.gasUsed!
+        )
+      );
+      collectiveData.totalFeeBurnedUSD = collectiveData.totalFeeBurnedUSD.plus(
+        collectiveData.totalFeeBurnedETH
+      );
+    }
   }
   // BLOBS DAY DATAS
   handleBlobsDayData(txn, blk);

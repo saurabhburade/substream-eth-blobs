@@ -5,8 +5,7 @@
 
 import { Writer, Reader } from "as-proto/assembly";
 import { BigInt } from "./BigInt";
-import { Timestamp } from "../../../../google/protobuf/Timestamp";
-import { Uint64NestedArray } from "./Uint64NestedArray";
+import { Timestamp } from "../../../../../google/protobuf/Timestamp";
 
 export class BlockHeader {
   static encode(message: BlockHeader, writer: Writer): void {
@@ -86,14 +85,6 @@ export class BlockHeader {
 
     writer.uint32(154);
     writer.bytes(message.withdrawalsRoot);
-
-    const txDependency = message.txDependency;
-    if (txDependency !== null) {
-      writer.uint32(162);
-      writer.fork();
-      Uint64NestedArray.encode(txDependency, writer);
-      writer.ldelim();
-    }
 
     writer.uint32(176);
     writer.uint64(message.blobGasUsed);
@@ -188,13 +179,6 @@ export class BlockHeader {
           message.withdrawalsRoot = reader.bytes();
           break;
 
-        case 20:
-          message.txDependency = Uint64NestedArray.decode(
-            reader,
-            reader.uint32()
-          );
-          break;
-
         case 22:
           message.blobGasUsed = reader.uint64();
           break;
@@ -235,7 +219,6 @@ export class BlockHeader {
   hash: Uint8Array;
   baseFeePerGas: BigInt | null;
   withdrawalsRoot: Uint8Array;
-  txDependency: Uint64NestedArray | null;
   blobGasUsed: u64;
   excessBlobGas: u64;
   parentBeaconRoot: Uint8Array;
@@ -260,7 +243,6 @@ export class BlockHeader {
     hash: Uint8Array = new Uint8Array(0),
     baseFeePerGas: BigInt | null = null,
     withdrawalsRoot: Uint8Array = new Uint8Array(0),
-    txDependency: Uint64NestedArray | null = null,
     blobGasUsed: u64 = 0,
     excessBlobGas: u64 = 0,
     parentBeaconRoot: Uint8Array = new Uint8Array(0)
@@ -284,7 +266,6 @@ export class BlockHeader {
     this.hash = hash;
     this.baseFeePerGas = baseFeePerGas;
     this.withdrawalsRoot = withdrawalsRoot;
-    this.txDependency = txDependency;
     this.blobGasUsed = blobGasUsed;
     this.excessBlobGas = excessBlobGas;
     this.parentBeaconRoot = parentBeaconRoot;
