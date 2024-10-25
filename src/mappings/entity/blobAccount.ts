@@ -1,4 +1,4 @@
-import { BigDecimal, BigInt, Bytes } from "@graphprotocol/graph-ts";
+import { BigDecimal, BigInt, Bytes, log } from "@graphprotocol/graph-ts";
 import {
   Account,
   BlobBlockData,
@@ -9,14 +9,22 @@ import {
 } from "../../../generated/schema";
 import { Block } from "../../pb/sf/ethereum/type/v2/clone/Block";
 import { TransactionTrace } from "../../pb/sf/ethereum/type/v2/clone/TransactionTrace";
-import { ONE_BD, ZERO_BD, ZERO_BI } from "../../utils/constants";
+import { ONE_BD, ONE_BI, ZERO_BD, ZERO_BI } from "../../utils/constants";
 import { handleBlobsDayData } from "../intervals/handleDayDatas";
 import { handleBlobsHourData } from "../intervals/handleHourDatas";
 import { handleAccountDayData } from "../intervals/handleDayDataAccount";
 import { handleAccountHourData } from "../intervals/handleHourDataAccount";
 
-export function handleBlobsAccount(txn: BlobTransaction, blk: Block): void {
-  const from = txn.from;
+export function handleBlobsAccount(
+  txn: BlobTransaction,
+  blk: Block,
+  from: string,
+  type: BigInt = ONE_BI
+): void {
+  log.info("FROM {}", [from]);
+  log.info("type {}", [type.toString()]);
+  log.info("FROM {} ::: Type {}", [from, type.toString()]);
+  // const from = txn.from;
   let blobAccount = Account.load(from);
   if (blobAccount === null) {
     blobAccount = new Account(from);
@@ -39,6 +47,7 @@ export function handleBlobsAccount(txn: BlobTransaction, blk: Block): void {
     blobAccount.currentEthPrice = ZERO_BD;
     blobAccount.totalFeeBurnedETH = ZERO_BD;
     blobAccount.totalFeeBurnedUSD = ZERO_BD;
+    blobAccount.type = type;
 
     handleNewBlobsAccount(txn, blk);
   }

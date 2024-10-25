@@ -9,7 +9,7 @@ import {
 import { BlobTransaction } from "../../../generated/schema";
 import { Block } from "../../pb/sf/ethereum/type/v2/clone/Block";
 import { TransactionTrace } from "../../pb/sf/ethereum/type/v2/clone/TransactionTrace";
-import { ZERO_BD, ZERO_BI } from "../../utils/constants";
+import { ONE_BI, ZERO_BD, ZERO_BI } from "../../utils/constants";
 import { handleBlobsCollective } from "./collectiveData";
 import { handleBlobBlockBlobs } from "./blobBlock";
 import { handleBlobsAccount } from "./BlobAccount";
@@ -27,6 +27,8 @@ export function handleBlobTransaction(txn: TransactionTrace, blk: Block): void {
     transactionEntity = new BlobTransaction(hash);
     transactionEntity.to = to;
     transactionEntity.from = from;
+    transactionEntity.miner = "";
+
     transactionEntity.hash = hash;
     transactionEntity.nonce = BigInt.fromU64(txn.nonce);
     transactionEntity.gasLimit = new BigDecimal(BigInt.fromU64(txn.gasLimit));
@@ -44,7 +46,14 @@ export function handleBlobTransaction(txn: TransactionTrace, blk: Block): void {
     transactionEntity.currentEthPrice = ZERO_BD;
     transactionEntity.totalFeeBurnedETH = ZERO_BD;
     transactionEntity.totalFeeBurnedUSD = ZERO_BD;
-
+    if (blk.header != null) {
+      if (blk.header!.coinbase !== null) {
+        const coinbaseHex = Bytes.fromUint8Array(
+          blk.header!.coinbase!
+        ).toHexString();
+        transactionEntity.miner = coinbaseHex;
+      }
+    }
     if (txn.receipt !== null && txn.receipt!.cumulativeGasUsed! !== null) {
       transactionEntity.cumulativeGasUsed = new BigDecimal(
         BigInt.fromU64(txn.receipt!.cumulativeGasUsed!)
@@ -56,7 +65,7 @@ export function handleBlobTransaction(txn: TransactionTrace, blk: Block): void {
       ).toHexString();
       const blobGasPriceNumber = parseInt(blobGasPriceHex, 16);
       transactionEntity.blobGasPrice = BigDecimal.fromString(
-        blobGasPriceNumber.toString()
+        isNaN(blobGasPriceNumber) ? "0" : blobGasPriceNumber.toString()
       );
     }
     if (txn.receipt !== null && txn.receipt!.stateRoot! !== null) {
@@ -92,18 +101,20 @@ export function handleBlobTransaction(txn: TransactionTrace, blk: Block): void {
             gasPriceHex,
             BigInt.fromU64(gasPriceU64).toString(),
             gasPriceNumber.toString(),
-            BigDecimal.fromString(gasPriceNumber.toString()).toString(),
+            BigDecimal.fromString(
+              isNaN(gasPriceNumber) ? "0" : gasPriceNumber.toString()
+            ).toString(),
           ]
         );
         transactionEntity.gasPrice = BigDecimal.fromString(
-          gasPriceNumber.toString()
+          isNaN(gasPriceNumber) ? "0" : gasPriceNumber.toString()
         );
       }
     }
     log.info("BEFORE :: txn.value", []);
 
     if (txn.value !== null) {
-      if (txn.value!.bytes! !== null && txn.value!.bytes!.toString() !== "") {
+      if (txn.value!.bytes !== null && txn.value!.bytes!.toString() !== "") {
         const valueHex = Bytes.fromUint8Array(txn.value!.bytes!).toHexString();
         const valueNumber = parseInt(valueHex, 16);
         log.info("BEFORE :: txn.valueNumber {} hex {} vb {}", [
@@ -111,38 +122,51 @@ export function handleBlobTransaction(txn: TransactionTrace, blk: Block): void {
           valueHex,
           txn.value!.bytes.toString(),
         ]);
-        transactionEntity.value = BigDecimal.fromString(valueNumber.toString());
+        transactionEntity.value = BigDecimal.fromString(
+          isNaN(valueNumber) ? "0" : valueNumber.toString()
+        );
       }
     }
     log.info("BEFORE :: txn.blobGasFeeCap", []);
 
     if (txn.blobGasFeeCap !== null) {
+      log.info("BEFORE :: txn.blobGasFeeCap INSIDE {}", [
+        txn!.blobGasFeeCap!.bytes!.toString(),
+      ]);
+
       if (txn.blobGasFeeCap!.bytes !== null) {
         const blobGasFeeCapHex = Bytes.fromUint8Array(
           txn.blobGasFeeCap!.bytes!
         ).toHexString();
         const blobGasFeeCapNumber = parseInt(blobGasFeeCapHex, 16);
         transactionEntity.blobGasFeeCap = BigDecimal.fromString(
-          blobGasFeeCapNumber.toString()
+          isNaN(blobGasFeeCapNumber) ? "0" : blobGasFeeCapNumber.toString()
         );
       }
     }
     log.info("BEFORE :: txn.maxFeePerGas", []);
 
     if (txn.maxFeePerGas !== null) {
+      log.info("BEFORE :: txn.blobGasFeeCap INSIDE {}", [
+        txn!.maxFeePerGas!.bytes!.toString(),
+      ]);
+
       if (txn.maxFeePerGas!.bytes !== null) {
         const maxFeePerGasHex = Bytes.fromUint8Array(
           txn.maxFeePerGas!.bytes!
         ).toHexString();
         const maxFeePerGasNumber = parseInt(maxFeePerGasHex, 16);
         transactionEntity.maxFeePerGas = BigDecimal.fromString(
-          maxFeePerGasNumber.toString()
+          isNaN(maxFeePerGasNumber) ? "0" : maxFeePerGasNumber.toString()
         );
       }
     }
     log.info("BEFORE :: txn.maxPriorityFeePerGas", []);
 
     if (txn.maxPriorityFeePerGas !== null) {
+      log.info("BEFORE :: txn.blobGasFeeCap INSIDE {}", [
+        txn!.maxPriorityFeePerGas!.bytes!.toString(),
+      ]);
       if (txn.maxPriorityFeePerGas!.bytes !== null) {
         const maxPriorityFeePerGasHex = Bytes.fromUint8Array(
           txn.maxPriorityFeePerGas!.bytes!
@@ -152,7 +176,9 @@ export function handleBlobTransaction(txn: TransactionTrace, blk: Block): void {
           16
         );
         transactionEntity.maxPriorityFeePerGas = BigDecimal.fromString(
-          maxPriorityFeePerGasNumber.toString()
+          isNaN(maxPriorityFeePerGasNumber)
+            ? "0"
+            : maxPriorityFeePerGasNumber.toString()
         );
       }
     }
@@ -165,7 +191,9 @@ export function handleBlobTransaction(txn: TransactionTrace, blk: Block): void {
     const totalFeeEth =
       transactionEntity.gasUsed!.times(transactionEntity.gasPrice!) || ZERO_BD;
     transactionEntity.totalFeeEth = totalFeeEth;
-
+    log.info("BEFORE :: ethPriceChainlink {}", [
+      blk!.ethPriceChainlink!.toString(),
+    ]);
     if (totalBlobGasEth !== null) {
       transactionEntity.blobGasUSD = BigDecimal.fromString(
         blk.ethPriceChainlink.toString()
@@ -181,6 +209,9 @@ export function handleBlobTransaction(txn: TransactionTrace, blk: Block): void {
     );
     if (blk.header !== null) {
       if (blk.header!.baseFeePerGas !== null) {
+        log.info("BEFORE :: txn.blobGasFeeCap INSIDE {}", [
+          blk.header!.baseFeePerGas!.bytes!.toString(),
+        ]);
         const baseFeePerGasHex = Bytes.fromUint8Array(
           blk.header!.baseFeePerGas!.bytes!
         ).toHexString();
@@ -206,6 +237,21 @@ export function handleBlobTransaction(txn: TransactionTrace, blk: Block): void {
 
   handleBlobsCollective(transactionEntity, blk);
   handleBlobBlockBlobs(transactionEntity, blk);
-  handleBlobsAccount(transactionEntity, blk);
+  handleBlobsAccount(transactionEntity, blk, transactionEntity.from, ONE_BI);
+  if (blk.header != null) {
+    if (blk.header!.coinbase !== null) {
+      const coinbaseHex = Bytes.fromUint8Array(
+        blk.header!.coinbase!
+      ).toHexString();
+      handleBlobsAccount(
+        transactionEntity,
+        blk,
+
+        coinbaseHex,
+        BigInt.fromString("2")
+      );
+    }
+  }
+
   transactionEntity.save();
 }

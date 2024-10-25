@@ -42,6 +42,7 @@ type BlobTransaction @entity {
   hash: String!
   input: String
   from: String!
+  miner: String!
   returnData: String
   publicKey: String
   # beginOrdinal: u64!
@@ -176,6 +177,7 @@ type BlobsHourData @entity {
 type Account @entity {
   id: ID!
   totalBlobTransactionCount: BigDecimal!
+  type: BigInt!
 
   currentEthPrice: BigDecimal!
   totalGasEth: BigDecimal!
