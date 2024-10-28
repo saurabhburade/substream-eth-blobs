@@ -138,7 +138,9 @@ export function handleAccountDayData(
             );
           accountDayData.totalFeeBurnedUSD =
             accountDayData.totalFeeBurnedUSD.plus(
-              accountDayData.totalFeeBurnedETH
+              accountDayData.totalFeeBurnedETH.times(
+                BigDecimal.fromString(blk.ethPriceChainlink.toString())
+              )
             );
         }
       }

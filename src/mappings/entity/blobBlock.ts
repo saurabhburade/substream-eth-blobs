@@ -111,7 +111,9 @@ export function handleBlobBlockRegular(
         )
       );
       blobBlock.totalFeeBurnedUSD = blobBlock.totalFeeBurnedUSD.plus(
-        blobBlock.totalFeeBurnedETH
+        blobBlock.totalFeeBurnedETH.times(
+          BigDecimal.fromString(blk.ethPriceChainlink.toString())
+        )
       );
     }
   }
@@ -220,7 +222,9 @@ export function handleBlobBlockBlobs(txn: BlobTransaction, blk: Block): void {
         )
       );
       blobBlock.totalFeeBurnedUSD = blobBlock.totalFeeBurnedUSD.plus(
-        blobBlock.totalFeeBurnedETH
+        blobBlock.totalFeeBurnedETH.times(
+          BigDecimal.fromString(blk.ethPriceChainlink.toString())
+        )
       );
     }
   }

@@ -120,7 +120,9 @@ export function handleBlobsAccount(
         )
       );
       blobAccount.totalFeeBurnedUSD = blobAccount.totalFeeBurnedUSD.plus(
-        blobAccount.totalFeeBurnedETH
+        blobAccount.totalFeeBurnedETH.times(
+          BigDecimal.fromString(blk.ethPriceChainlink.toString())
+        )
       );
     }
   }

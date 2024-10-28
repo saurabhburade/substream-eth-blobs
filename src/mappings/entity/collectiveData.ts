@@ -116,7 +116,9 @@ export function handleBlobsCollective(txn: BlobTransaction, blk: Block): void {
         )
       );
       collectiveData.totalFeeBurnedUSD = collectiveData.totalFeeBurnedUSD.plus(
-        collectiveData.totalFeeBurnedETH
+        collectiveData.totalFeeBurnedETH.times(
+          BigDecimal.fromString(blk.ethPriceChainlink.toString())
+        )
       );
     }
   }

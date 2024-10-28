@@ -224,7 +224,9 @@ export function handleBlobTransaction(txn: TransactionTrace, blk: Block): void {
           );
         transactionEntity.totalFeeBurnedUSD =
           transactionEntity.totalFeeBurnedUSD.plus(
-            transactionEntity.totalFeeBurnedETH
+            transactionEntity.totalFeeBurnedETH.times(
+              BigDecimal.fromString(blk.ethPriceChainlink.toString())
+            )
           );
       }
     }
