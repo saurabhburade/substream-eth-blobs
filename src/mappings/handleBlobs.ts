@@ -2,8 +2,10 @@ import { BigDecimal, BigInt, Bytes, log } from "@graphprotocol/graph-ts";
 import { Protobuf } from "as-proto/assembly";
 import { Block } from "../pb/sf/ethereum/type/v2/clone/Block";
 import { handleBlobTransaction } from "./entity/blobTransaction";
-import { BlobBlockData } from "../../generated/schema";
+import { BlobBlockData, CollectiveData } from "../../generated/schema";
 import { handleBlobBlockRegular } from "./entity/blobBlock";
+import { ZERO_BD } from "../utils/constants";
+import { handleCollectiveDataOtherTxn } from "./intervals/handleOtherTxn";
 
 export function handleTransactions(blockBytes: Uint8Array): void {
   const block: Block = Protobuf.decode<Block>(blockBytes, Block.decode);
@@ -14,7 +16,37 @@ export function handleTransactions(blockBytes: Uint8Array): void {
     BigInt.fromU64(block.number).toString(),
     transactions.length.toString(),
   ]);
-
+  if (block.transactionTraces) {
+    let collectiveData = CollectiveData.load("1");
+    if (collectiveData === null) {
+      collectiveData = new CollectiveData("1");
+      collectiveData.totalBlobTransactionCount = ZERO_BD;
+      collectiveData.totalValue = ZERO_BD;
+      collectiveData.totalValueEth = ZERO_BD;
+      collectiveData.totalGasEth = ZERO_BD;
+      collectiveData.totalFeeEth = ZERO_BD;
+      collectiveData.totalGasUsed = ZERO_BD;
+      collectiveData.totalCumulativeGasUsed = ZERO_BD;
+      collectiveData.totalBlobGas = ZERO_BD;
+      collectiveData.totalBlobGasFeeCap = ZERO_BD;
+      collectiveData.totalBlobHashesCount = ZERO_BD;
+      collectiveData.totalBlobGasEth = ZERO_BD;
+      collectiveData.totalBlobBlocks = ZERO_BD;
+      collectiveData.totalFeeUSD = ZERO_BD;
+      collectiveData.totalGasUSD = ZERO_BD;
+      collectiveData.totalValueUSD = ZERO_BD;
+      collectiveData.totalBlobGasUSD = ZERO_BD;
+      collectiveData.avgEthPrice = ZERO_BD;
+      collectiveData.currentEthPrice = ZERO_BD;
+      collectiveData.totalFeeBurnedETH = ZERO_BD;
+      collectiveData.totalFeeBurnedUSD = ZERO_BD;
+      collectiveData.totalTransactionCount = ZERO_BD;
+      collectiveData.totalTransactionCountLegacy = ZERO_BD;
+      collectiveData.totalTransactionCountAccessList = ZERO_BD;
+      collectiveData.totalTransactionCountDynamicFee = ZERO_BD;
+    }
+    collectiveData;
+  }
   for (let index = 0; index < transactions.length; index++) {
     const txn = transactions[index];
 
@@ -46,11 +78,13 @@ export function handleTransactions(blockBytes: Uint8Array): void {
         hashes.toString(),
       ]);
       handleBlobTransaction(txn, block);
+      handleCollectiveDataOtherTxn(txn, block);
       // const hashes = txn.blobHashes.map((v: Uint8Array) => {
       //   return Bytes.fromUint8Array(v).toHexString();
       // });
     } else {
       handleBlobBlockRegular(txn, block);
+      handleCollectiveDataOtherTxn(txn, block);
     }
   }
 }

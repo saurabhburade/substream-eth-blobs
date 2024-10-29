@@ -86,6 +86,11 @@ type CollectiveData @entity {
   lastUpdatedBlock: BigDecimal
   totalBlobBlocks: BigDecimal
   totalBlobAccounts: BigDecimal
+  totalTransactionCount: BigDecimal!
+
+  totalTransactionCountLegacy: BigDecimal!
+  totalTransactionCountAccessList: BigDecimal!
+  totalTransactionCountDynamicFee: BigDecimal!
 }
 type BlobBlockData @entity {
   id: ID!
@@ -116,6 +121,10 @@ type BlobBlockData @entity {
   timestamp: BigDecimal
   size: BigDecimal
   totalBlobAccounts: BigDecimal
+
+  totalTransactionCountLegacy: BigDecimal!
+  totalTransactionCountAccessList: BigDecimal!
+  totalTransactionCountDynamicFee: BigDecimal!
 }
 
 type BlobsDayData @entity {
@@ -145,6 +154,11 @@ type BlobsDayData @entity {
   lastUpdatedBlock: BigDecimal
   totalBlobBlocks: BigDecimal
   totalBlobAccounts: BigDecimal
+  totalTransactionCount: BigDecimal!
+
+  totalTransactionCountLegacy: BigDecimal!
+  totalTransactionCountAccessList: BigDecimal!
+  totalTransactionCountDynamicFee: BigDecimal!
 }
 type BlobsHourData @entity {
   id: ID!
@@ -173,6 +187,10 @@ type BlobsHourData @entity {
   lastUpdatedBlock: BigDecimal
   totalBlobBlocks: BigDecimal
   totalBlobAccounts: BigDecimal
+  totalTransactionCount: BigDecimal!
+  totalTransactionCountLegacy: BigDecimal!
+  totalTransactionCountAccessList: BigDecimal!
+  totalTransactionCountDynamicFee: BigDecimal!
 }
 type Account @entity {
   id: ID!

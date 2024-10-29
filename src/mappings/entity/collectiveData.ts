@@ -30,6 +30,10 @@ export function handleBlobsCollective(txn: BlobTransaction, blk: Block): void {
     collectiveData.currentEthPrice = ZERO_BD;
     collectiveData.totalFeeBurnedETH = ZERO_BD;
     collectiveData.totalFeeBurnedUSD = ZERO_BD;
+    collectiveData.totalTransactionCount = ZERO_BD;
+    collectiveData.totalTransactionCountLegacy = ZERO_BD;
+    collectiveData.totalTransactionCountAccessList = ZERO_BD;
+    collectiveData.totalTransactionCountDynamicFee = ZERO_BD;
   }
   //   let totalGasEth = ZERO_BD;
   //     if (txn.gasUsed !== null && ) {

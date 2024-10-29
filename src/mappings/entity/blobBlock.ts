@@ -70,6 +70,10 @@ export function handleBlobBlockRegular(
     blobBlock.currentEthPrice = ZERO_BD;
     blobBlock.totalFeeBurnedETH = ZERO_BD;
     blobBlock.totalFeeBurnedUSD = ZERO_BD;
+
+    blobBlock.totalTransactionCountLegacy = ZERO_BD;
+    blobBlock.totalTransactionCountAccessList = ZERO_BD;
+    blobBlock.totalTransactionCountDynamicFee = ZERO_BD;
   }
   //   txn.gasPrice!;
   if (txn.gasPrice !== null) {
@@ -152,6 +156,9 @@ export function handleBlobBlockBlobs(txn: BlobTransaction, blk: Block): void {
     blobBlock.avgEthPrice = ZERO_BD;
     blobBlock.totalFeeBurnedETH = ZERO_BD;
     blobBlock.totalFeeBurnedUSD = ZERO_BD;
+    blobBlock.totalTransactionCountLegacy = ZERO_BD;
+    blobBlock.totalTransactionCountAccessList = ZERO_BD;
+    blobBlock.totalTransactionCountDynamicFee = ZERO_BD;
   }
   blobBlock.totalTransactionCount =
     blobBlock.totalTransactionCount.plus(ONE_BD);
