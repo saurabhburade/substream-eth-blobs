@@ -64,6 +64,10 @@ export function handleBlobsHourData(txn: BlobTransaction, blk: Block): void {
         blobsHourData.totalFeeBurnedETH = ZERO_BD;
         blobsHourData.totalFeeBurnedUSD = ZERO_BD;
         blobsHourData.hourStartTimestamp = new BigDecimal(hourStartTimestamp);
+        blobsHourData.totalTransactionCount = ZERO_BD;
+        blobsHourData.totalTransactionCountLegacy = ZERO_BD;
+        blobsHourData.totalTransactionCountAccessList = ZERO_BD;
+        blobsHourData.totalTransactionCountDynamicFee = ZERO_BD;
       }
       if (blobsHourDataPrev !== null) {
         blobsHourData.previousBlobsHourData = blobsHourDataPrev.id;

@@ -62,6 +62,11 @@ export function handleBlobsDayData(txn: BlobTransaction, blk: Block): void {
         blobsDayData.avgEthPrice = ZERO_BD;
         blobsDayData.totalFeeBurnedETH = ZERO_BD;
         blobsDayData.totalFeeBurnedUSD = ZERO_BD;
+
+        blobsDayData.totalTransactionCount = ZERO_BD;
+        blobsDayData.totalTransactionCountLegacy = ZERO_BD;
+        blobsDayData.totalTransactionCountAccessList = ZERO_BD;
+        blobsDayData.totalTransactionCountDynamicFee = ZERO_BD;
       }
       if (blobsDayDataPrev !== null) {
         blobsDayData.previousBlobsDayData = blobsDayDataPrev.id;
