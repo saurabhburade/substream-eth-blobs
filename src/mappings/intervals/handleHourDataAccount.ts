@@ -138,7 +138,9 @@ export function handleAccountHourData(
             );
           accounHourData.totalFeeBurnedUSD =
             accounHourData.totalFeeBurnedUSD.plus(
-              accounHourData.totalFeeBurnedETH
+              accounHourData.totalFeeBurnedETH.times(
+                BigDecimal.fromString(blk.ethPriceChainlink.toString())
+              )
             );
         }
       }

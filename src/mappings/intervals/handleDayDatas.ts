@@ -127,7 +127,9 @@ export function handleBlobsDayData(txn: BlobTransaction, blk: Block): void {
             )
           );
           blobsDayData.totalFeeBurnedUSD = blobsDayData.totalFeeBurnedUSD.plus(
-            blobsDayData.totalFeeBurnedETH
+            blobsDayData.totalFeeBurnedETH.times(
+              BigDecimal.fromString(blk.ethPriceChainlink.toString())
+            )
           );
         }
       }
