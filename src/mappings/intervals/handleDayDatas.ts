@@ -19,6 +19,8 @@ export function handleBlobsDayData(txn: BlobTransaction, blk: Block): void {
   const totalBlobGas = txn.blobGas || ZERO_BD;
   const totalBlobGasFeeCap = txn.blobGasFeeCap || ZERO_BD;
   const totalBlobHashesCount = txn.blobHashesLength || ZERO_BD;
+  const blockNumber = new BigDecimal(BigInt.fromU64(blk.number));
+
   if (blk.header !== null && blk.header!.timestamp !== null) {
     let timestamp = blk.header!.timestamp!;
     if (timestamp !== null && timestamp.seconds !== null) {
@@ -62,6 +64,7 @@ export function handleBlobsDayData(txn: BlobTransaction, blk: Block): void {
         blobsDayData.avgEthPrice = ZERO_BD;
         blobsDayData.totalFeeBurnedETH = ZERO_BD;
         blobsDayData.totalFeeBurnedUSD = ZERO_BD;
+        blobsDayData.dayStartBlock = blockNumber;
 
         blobsDayData.totalTransactionCount = ZERO_BD;
         blobsDayData.totalTransactionCountLegacy = ZERO_BD;

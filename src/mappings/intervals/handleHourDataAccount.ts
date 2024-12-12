@@ -23,6 +23,8 @@ export function handleAccountHourData(
   const totalBlobGas = txn.blobGas || ZERO_BD;
   const totalBlobGasFeeCap = txn.blobGasFeeCap || ZERO_BD;
   const totalBlobHashesCount = txn.blobHashesLength || ZERO_BD;
+  const blockNumber = new BigDecimal(BigInt.fromU64(blk.number));
+
   if (blk.header !== null && blk.header!.timestamp !== null) {
     let timestamp = blk.header!.timestamp!;
     if (timestamp !== null && timestamp.seconds !== null) {
@@ -66,7 +68,22 @@ export function handleAccountHourData(
         accounHourData.currentEthPrice = ZERO_BD;
         accounHourData.totalFeeBurnedETH = ZERO_BD;
         accounHourData.totalFeeBurnedUSD = ZERO_BD;
+        accounHourData.hourStartBlock = blockNumber;
       }
+      if (
+        account.accountHourData === null ||
+        account.accountHourData!.length === 0
+      ) {
+        account.accountHourData = [accounHourData!.id!.toString()];
+      }
+      if (account.accountHourData !== null) {
+        const hourlyDatas = account.accountHourData;
+        if (hourlyDatas && hourlyDatas!.length > 0) {
+          hourlyDatas.push(accounHourData!.id!.toString());
+          account.accountHourData = hourlyDatas;
+        }
+      }
+      account.save();
       accounHourData.account = account.id;
       if (accounHourDataPrev !== null) {
         accounHourData.previousAccountHourData = accounHourDataPrev.id;

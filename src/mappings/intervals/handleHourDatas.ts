@@ -19,6 +19,8 @@ export function handleBlobsHourData(txn: BlobTransaction, blk: Block): void {
   const totalBlobGas = txn.blobGas || ZERO_BD;
   const totalBlobGasFeeCap = txn.blobGasFeeCap || ZERO_BD;
   const totalBlobHashesCount = txn.blobHashesLength || ZERO_BD;
+  const blockNumber = new BigDecimal(BigInt.fromU64(blk.number));
+
   if (blk.header !== null && blk.header!.timestamp !== null) {
     let timestamp = blk.header!.timestamp!;
     if (timestamp !== null && timestamp.seconds !== null) {
@@ -68,6 +70,7 @@ export function handleBlobsHourData(txn: BlobTransaction, blk: Block): void {
         blobsHourData.totalTransactionCountLegacy = ZERO_BD;
         blobsHourData.totalTransactionCountAccessList = ZERO_BD;
         blobsHourData.totalTransactionCountDynamicFee = ZERO_BD;
+        blobsHourData.hourStartBlock = blockNumber;
       }
       if (blobsHourDataPrev !== null) {
         blobsHourData.previousBlobsHourData = blobsHourDataPrev.id;

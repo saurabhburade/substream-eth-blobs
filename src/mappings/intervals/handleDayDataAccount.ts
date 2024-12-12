@@ -22,6 +22,8 @@ export function handleAccountDayData(
   const totalBlobGas = txn.blobGas || ZERO_BD;
   const totalBlobGasFeeCap = txn.blobGasFeeCap || ZERO_BD;
   const totalBlobHashesCount = txn.blobHashesLength || ZERO_BD;
+  const blockNumber = new BigDecimal(BigInt.fromU64(blk.number));
+
   if (blk.header !== null && blk.header!.timestamp !== null) {
     let timestamp = blk.header!.timestamp!;
     if (timestamp !== null && timestamp.seconds !== null) {
@@ -65,7 +67,23 @@ export function handleAccountDayData(
         accountDayData.currentEthPrice = ZERO_BD;
         accountDayData.totalFeeBurnedETH = ZERO_BD;
         accountDayData.totalFeeBurnedUSD = ZERO_BD;
+        accountDayData.dayStartBlock = blockNumber;
       }
+
+      if (
+        account.accountDayData === null ||
+        account.accountDayData!.length === 0
+      ) {
+        account.accountDayData = [accountDayData!.id!.toString()];
+      }
+      if (account.accountDayData !== null) {
+        const dayDatas = account.accountDayData;
+        if (dayDatas && dayDatas!.length > 0) {
+          dayDatas.push(accountDayData!.id!.toString());
+          account.accountDayData = dayDatas;
+        }
+      }
+      account.save();
       accountDayData.account = account.id;
 
       if (accountDayDataPrev !== null) {
