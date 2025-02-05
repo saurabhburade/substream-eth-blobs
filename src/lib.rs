@@ -65,7 +65,6 @@ fn map_blob_transactions(blk: Block) -> Result<Block, substreams::errors::Error>
         .filter_map(|t: &eth::v2::TransactionTrace| {
             // Provide a default value if blob_gas is None
             let gas = t.blob_gas.unwrap_or(0);
-            // Using 0 as default
 
             // Only create BlobGas if gas is greater than 0
             if gas > 0 {
@@ -74,15 +73,6 @@ fn map_blob_transactions(blk: Block) -> Result<Block, substreams::errors::Error>
                     .into_iter()
                     .map(|bts| vec_u8_to_hex_string(bts))
                     .collect();
-
-                // substreams::log::println("TXN::".to_string());
-                // substreams::log::println(
-                //     format!("HASH :: 0x{}", vec_u8_to_hex_string(t.clone().hash))
-                // );
-                // substreams::log::println(format!("SIZE :: {}", blk.size));
-                // substreams::log::println(format!("BLOB GAS:: {}", t.blob_gas.unwrap_or(0)));
-                // substreams::log::println(format!("HASHES {:?}", hashes));
-
                 Some(BlobTransaction {
                     blob_gas_used: t.blob_gas.unwrap_or(0),
                     block_number: blk.number,
@@ -186,16 +176,8 @@ fn get_eth_rate() -> substreams::scalar::BigDecimal {
     let rate = ethprice_option.unwrap();
     let rate_decimal = substreams::scalar::BigDecimal::from(rate.clone());
 
-    // rate;
-    // Return the inverse of the rate
-    // return rate.checked_div(substreams::scalar::BigInt::from(1)).unwrap();
-
-    // Calculate the inverse by multiplying with a fixed point precision
-    // Assuming a precision factor to avoid losing fractional values
-    // let precision_factor = substreams::scalar::BigInt::from(1_000_000_000_000_000); // Adjust as needed
     let precision_factor = substreams::scalar::BigDecimal::from(1); // Adjust as needed
 
-    // return precision_factor / rate; // Inverse of rate
     return precision_factor / rate_decimal; // Inverse of rate
 }
 
@@ -327,16 +309,3 @@ fn blk_to_blk_header_pb(blk: Block) -> pb::sf::ethereum::r#type::v2::clone::Bloc
     };
     blk_header
 }
-
-// fn into_vec8(v: String) -> Vec<u8> {
-//     let big_int_result = BigInt::from_str(&v);
-
-//     match big_int_result {
-//         Ok(big_int) => big_int.to_signed_bytes_le(), // Convert to Vec<u8> if parsing is successful
-//         Err(e) => {
-//             // Handle the error, for example, logging or returning a default value
-//             eprintln!("Failed to parse BigInt: {}", e);
-//             Vec::new() // Return an empty Vec or handle it as needed
-//         }
-//     }
-// }
