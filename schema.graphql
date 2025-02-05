@@ -15,6 +15,7 @@ enum TransactionTraceStatus {
   REVERTED
   # Add other statuses as needed
 }
+
 type BlobTransaction @entity {
   id: ID!
   to: String!
@@ -86,6 +87,7 @@ type CollectiveData @entity {
   lastUpdatedBlock: BigDecimal
   totalBlobBlocks: BigDecimal
   totalBlobAccounts: BigDecimal
+  totalValidatorAccounts: BigDecimal
   totalTransactionCount: BigDecimal!
 
   totalTransactionCountLegacy: BigDecimal!
@@ -119,6 +121,7 @@ type BlobBlockData @entity {
   totalBlobHashesCount: BigDecimal!
   blockNumber: BigDecimal
   timestamp: BigDecimal
+
   size: BigDecimal
   totalBlobAccounts: BigDecimal
 
@@ -151,9 +154,12 @@ type BlobsDayData @entity {
   totalBlobHashesCount: BigDecimal!
   previousBlobsDayData: BlobsDayData
   dayStartTimestamp: BigDecimal
+  dayStartBlock: BigDecimal
   lastUpdatedBlock: BigDecimal
   totalBlobBlocks: BigDecimal
   totalBlobAccounts: BigDecimal
+  totalValidatorAccounts: BigDecimal
+
   totalTransactionCount: BigDecimal!
 
   totalTransactionCountLegacy: BigDecimal!
@@ -182,11 +188,14 @@ type BlobsHourData @entity {
   totalBlobGasUSD: BigDecimal!
   totalBlobGasFeeCap: BigDecimal!
   totalBlobHashesCount: BigDecimal!
-  previousBlobsHourData: BlobsDayData
+  previousBlobsHourData: BlobsHourData
   hourStartTimestamp: BigDecimal
+  hourStartBlock: BigDecimal
   lastUpdatedBlock: BigDecimal
   totalBlobBlocks: BigDecimal
   totalBlobAccounts: BigDecimal
+  totalValidatorAccounts: BigDecimal
+
   totalTransactionCount: BigDecimal!
   totalTransactionCountLegacy: BigDecimal!
   totalTransactionCountAccessList: BigDecimal!
@@ -215,8 +224,11 @@ type Account @entity {
   totalBlobGasUSD: BigDecimal!
   totalBlobGasFeeCap: BigDecimal!
   totalBlobHashesCount: BigDecimal!
+  startBlock: BigDecimal
   lastUpdatedBlock: BigDecimal
   totalBlobBlocks: BigDecimal
+  accountDayData: [AccountDayData!]
+  accountHourData: [AccountHourData!]
 }
 type AccountDayData @entity {
   id: ID!
@@ -243,6 +255,8 @@ type AccountDayData @entity {
   totalBlobHashesCount: BigDecimal!
   previousAccountDayData: AccountDayData
   dayStartTimestamp: BigDecimal
+  dayStartBlock: BigDecimal
+
   lastUpdatedBlock: BigDecimal
   totalBlobBlocks: BigDecimal
 }
@@ -270,6 +284,7 @@ type AccountHourData @entity {
   totalBlobGasFeeCap: BigDecimal!
   totalBlobHashesCount: BigDecimal!
   previousAccountHourData: AccountHourData
+  hourStartBlock: BigDecimal
   hourStartTimestamp: BigDecimal
   lastUpdatedBlock: BigDecimal
   totalBlobBlocks: BigDecimal

@@ -9,7 +9,13 @@ import {
 } from "../../../generated/schema";
 import { Block } from "../../pb/sf/ethereum/type/v2/clone/Block";
 import { TransactionTrace } from "../../pb/sf/ethereum/type/v2/clone/TransactionTrace";
-import { ONE_BD, ONE_BI, ZERO_BD, ZERO_BI } from "../../utils/constants";
+import {
+  ONE_BD,
+  ONE_BI,
+  TWO_BI,
+  ZERO_BD,
+  ZERO_BI,
+} from "../../utils/constants";
 import { handleBlobsDayData } from "../intervals/handleDayDatas";
 import { handleBlobsHourData } from "../intervals/handleHourDatas";
 import { handleAccountDayData } from "../intervals/handleDayDataAccount";
@@ -25,6 +31,8 @@ export function handleBlobsAccount(
   log.info("type {}", [type.toString()]);
   log.info("FROM {} ::: Type {}", [from, type.toString()]);
   // const from = txn.from;
+  const blockNumber = new BigDecimal(BigInt.fromU64(blk.number));
+
   let blobAccount = Account.load(from);
   if (blobAccount === null) {
     blobAccount = new Account(from);
@@ -47,7 +55,10 @@ export function handleBlobsAccount(
     blobAccount.currentEthPrice = ZERO_BD;
     blobAccount.totalFeeBurnedETH = ZERO_BD;
     blobAccount.totalFeeBurnedUSD = ZERO_BD;
+    blobAccount.startBlock = blockNumber;
     blobAccount.type = type;
+    blobAccount.accountDayData = [];
+    blobAccount.accountHourData = [];
 
     handleNewBlobsAccount(txn, blk);
   }
@@ -148,17 +159,32 @@ export function handleBlobsAccount(
   blobAccount.save();
 }
 
-export function handleNewBlobsAccount(txn: BlobTransaction, blk: Block): void {
+export function handleNewBlobsAccount(
+  txn: BlobTransaction,
+  blk: Block,
+  type: BigInt = ONE_BI
+): void {
   const blockNumber = new BigDecimal(BigInt.fromU64(blk.number));
   let collectiveData = CollectiveData.load("1");
   if (collectiveData !== null) {
     if (collectiveData.totalBlobAccounts === null) {
       collectiveData.totalBlobAccounts = ZERO_BD;
     }
-    collectiveData.totalBlobAccounts =
-      collectiveData.totalBlobAccounts!.plus(ONE_BD);
+    if (collectiveData.totalValidatorAccounts === null) {
+      collectiveData.totalValidatorAccounts = ZERO_BD;
+    }
+    if (type === ONE_BI) {
+      collectiveData.totalBlobAccounts =
+        collectiveData.totalBlobAccounts!.plus(ONE_BD);
+    }
+    if (type === TWO_BI) {
+      collectiveData.totalValidatorAccounts =
+        collectiveData.totalValidatorAccounts!.plus(ONE_BD);
+    }
+
     collectiveData.save();
   }
+
   let blobBlock = BlobBlockData.load(blockNumber.toString());
   if (blobBlock !== null) {
     if (blobBlock.totalBlobAccounts === null) {
