@@ -9,21 +9,6 @@ import { Block } from "../../pb/sf/ethereum/type/v2/clone/Block";
 import { TransactionTrace } from "../../pb/sf/ethereum/type/v2/clone/TransactionTrace";
 import { ONE_BD, ONE_BI, ZERO_BD } from "../../utils/constants";
 
-// export enum Type {
-//   TRX_TYPE_LEGACY = 0,
-//   TRX_TYPE_ACCESS_LIST = 1,
-//   TRX_TYPE_DYNAMIC_FEE = 2,
-//   TRX_TYPE_BLOB = 3,
-//   TRX_TYPE_ARBITRUM_DEPOSIT = 100,
-//   TRX_TYPE_ARBITRUM_UNSIGNED = 101,
-//   TRX_TYPE_ARBITRUM_CONTRACT = 102,
-//   TRX_TYPE_ARBITRUM_RETRY = 104,
-//   TRX_TYPE_ARBITRUM_SUBMIT_RETRYABLE = 105,
-//   TRX_TYPE_ARBITRUM_INTERNAL = 106,
-//   TRX_TYPE_ARBITRUM_LEGACY = 120,
-//   TRX_TYPE_OPTIMISM_DEPOSIT = 126,
-// }
-
 export function handleCollectiveDataOtherTxn(
   txn: TransactionTrace,
   blk: Block

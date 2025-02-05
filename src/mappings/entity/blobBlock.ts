@@ -22,26 +22,6 @@ export function handleBlobBlockRegular(
   const timestamp = blk.header!.timestamp!;
   let blobBlock = BlobBlockData.load(blockNumber.toString());
   if (blobBlock === null) {
-    // id: ID!;
-    // totalBlobTransactionCount: BigDecimal!;
-    // totalTransactionCount: BigDecimal!;
-
-    // totalBlockFeeEth: BigDecimal!;
-    // totalGasEth: BigDecimal!;
-    // totalFeeEth: BigDecimal!;
-    // totalValue: BigDecimal!;
-    // totalValueEth: BigDecimal!;
-
-    // totalGasUsed: BigDecimal!;
-    // totalCumulativeGasUsed: BigDecimal!;
-
-    // totalBlobGas: BigDecimal!;
-    // totalBlobGasEth: BigDecimal!;
-    // totalBlobGasFeeCap: BigDecimal!;
-    // totalBlobHashesCount: BigDecimal!;
-    // blockNumber: BigDecimal;
-    // timestamp: BigDecimal;
-    // size: BigDecimal;
     blobBlock = new BlobBlockData(blockNumber.toString());
     blobBlock.totalBlobTransactionCount = ZERO_BD;
     blobBlock.totalTransactionCount = ZERO_BD;

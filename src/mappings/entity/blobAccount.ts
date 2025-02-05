@@ -62,9 +62,6 @@ export function handleBlobsAccount(
 
     handleNewBlobsAccount(txn, blk);
   }
-  //   let totalGasEth = ZERO_BD;
-  //     if (txn.gasUsed !== null && ) {
-  //   }
 
   const totalGasEth = txn.gasUsed!.times(txn.gasPrice!) || ZERO_BD;
   const totalBlobGasEth = txn.blobGas!.times(txn.blobGasPrice!) || ZERO_BD;
@@ -149,11 +146,6 @@ export function handleBlobsAccount(
     blobAccount.lastUpdatedBlock = blocknumber;
     blobAccount.totalBlobBlocks = blobAccount.totalBlobBlocks!.plus(ONE_BD);
   }
-  // BLOBS DAY DATAS
-  //   handleBlobsDayData(txn, blk);
-  //   handleBlobsHourData(txn, blk);
-
-  // let blobsDayData =
   handleAccountDayData(txn, blk, blobAccount);
   handleAccountHourData(txn, blk, blobAccount);
   blobAccount.save();
