@@ -70,19 +70,19 @@ export function handleAccountDayData(
         accountDayData.dayStartBlock = blockNumber;
       }
 
-      if (
-        account.accountDayData === null ||
-        account.accountDayData!.length === 0
-      ) {
-        account.accountDayData = [accountDayData!.id!.toString()];
-      }
-      if (account.accountDayData !== null) {
-        const dayDatas = account.accountDayData;
-        if (dayDatas && dayDatas!.length > 0) {
-          dayDatas.push(accountDayData!.id!.toString());
-          account.accountDayData = dayDatas;
-        }
-      }
+      // if (
+      //   account.accountDayData === null ||
+      //   account.accountDayData!.length === 0
+      // ) {
+      //   account.accountDayData = [accountDayData!.id!.toString()];
+      // }
+      // if (account.accountDayData !== null) {
+      //   const dayDatas = account.accountDayData;
+      //   if (dayDatas && dayDatas!.length > 0) {
+      //     dayDatas.push(accountDayData!.id!.toString());
+      //     account.accountDayData = dayDatas;
+      //   }
+      // }
       account.save();
       accountDayData.account = account.id;
 

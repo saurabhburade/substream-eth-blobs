@@ -1,5 +1,5 @@
 type Contract @entity {
-  id: ID!
+  id: Bytes!
 
   "The timestamp when the contract was deployed"
   timestamp: String!
@@ -17,7 +17,7 @@ enum TransactionTraceStatus {
 }
 
 type BlobTransaction @entity {
-  id: ID!
+  id: Bytes!
   to: String!
   nonce: BigInt!
   gasPrice: BigDecimal
@@ -63,7 +63,7 @@ type BlobTransaction @entity {
   timestamp: BigDecimal
 }
 type CollectiveData @entity {
-  id: ID!
+  id: Bytes!
   totalBlobTransactionCount: BigDecimal!
   avgEthPrice: BigDecimal!
   currentEthPrice: BigDecimal!
@@ -202,7 +202,7 @@ type BlobsHourData @entity {
   totalTransactionCountDynamicFee: BigDecimal!
 }
 type Account @entity {
-  id: ID!
+  id: Bytes!
   totalBlobTransactionCount: BigDecimal!
   type: BigInt!
 
@@ -227,12 +227,12 @@ type Account @entity {
   startBlock: BigDecimal
   lastUpdatedBlock: BigDecimal
   totalBlobBlocks: BigDecimal
-  accountDayData: [AccountDayData!]
-  accountHourData: [AccountHourData!]
+  accountDayData: [AccountDayData!] @derivedFrom(field: "account")
+  accountHourData: [AccountHourData!] @derivedFrom(field: "account")
 }
 type AccountDayData @entity {
   id: ID!
-  account: Account
+  account: Account!
   totalBlobTransactionCount: BigDecimal!
 
   currentEthPrice: BigDecimal!
@@ -262,7 +262,7 @@ type AccountDayData @entity {
 }
 type AccountHourData @entity {
   id: ID!
-  account: Account
+  account: Account!
   totalBlobTransactionCount: BigDecimal!
 
   currentEthPrice: BigDecimal!

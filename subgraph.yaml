@@ -2,6 +2,8 @@ specVersion: 1.0.0
 description: Ethereum blobs Tracking Subgraph (powered by Substreams)
 repository: https://github.com/graphprotocol/graph-tooling
 
+indexerHints:
+  prune: never
 schema:
   file: schema.graphql
 

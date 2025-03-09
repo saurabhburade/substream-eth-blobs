@@ -70,19 +70,19 @@ export function handleAccountHourData(
         accounHourData.totalFeeBurnedUSD = ZERO_BD;
         accounHourData.hourStartBlock = blockNumber;
       }
-      if (
-        account.accountHourData === null ||
-        account.accountHourData!.length === 0
-      ) {
-        account.accountHourData = [accounHourData!.id!.toString()];
-      }
-      if (account.accountHourData !== null) {
-        const hourlyDatas = account.accountHourData;
-        if (hourlyDatas && hourlyDatas!.length > 0) {
-          hourlyDatas.push(accounHourData!.id!.toString());
-          account.accountHourData = hourlyDatas;
-        }
-      }
+      // if (
+      //   account.accountHourData === null ||
+      //   account.accountHourData!.length === 0
+      // ) {
+      //   account.accountHourData = [accounHourData!.id!.toString()];
+      // }
+      // if (account.accountHourData !== null) {
+      //   const hourlyDatas = account.accountHourData;
+      //   if (hourlyDatas && hourlyDatas!.length > 0) {
+      //     hourlyDatas.push(accounHourData!.id!.toString());
+      //     account.accountHourData = hourlyDatas;
+      //   }
+      // }
       account.save();
       accounHourData.account = account.id;
       if (accounHourDataPrev !== null) {

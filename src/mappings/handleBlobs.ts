@@ -4,7 +4,7 @@ import { Block } from "../pb/sf/ethereum/type/v2/clone/Block";
 import { handleBlobTransaction } from "./entity/blobTransaction";
 import { BlobBlockData, CollectiveData } from "../../generated/schema";
 import { handleBlobBlockRegular } from "./entity/blobBlock";
-import { ZERO_BD } from "../utils/constants";
+import { ONE_BI, ZERO_BD } from "../utils/constants";
 import { handleCollectiveDataOtherTxn } from "./intervals/handleOtherTxn";
 
 export function handleTransactions(blockBytes: Uint8Array): void {
@@ -17,9 +17,9 @@ export function handleTransactions(blockBytes: Uint8Array): void {
     transactions.length.toString(),
   ]);
   if (block.transactionTraces) {
-    let collectiveData = CollectiveData.load("1");
+    let collectiveData = CollectiveData.load(Bytes.fromI32(1));
     if (collectiveData === null) {
-      collectiveData = new CollectiveData("1");
+      collectiveData = new CollectiveData(Bytes.fromI32(1));
       collectiveData.totalBlobTransactionCount = ZERO_BD;
       collectiveData.totalValue = ZERO_BD;
       collectiveData.totalValueEth = ZERO_BD;

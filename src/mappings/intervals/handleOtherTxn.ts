@@ -1,4 +1,4 @@
-import { BigDecimal, BigInt } from "@graphprotocol/graph-ts";
+import { BigDecimal, BigInt, Bytes } from "@graphprotocol/graph-ts";
 import {
   BlobBlockData,
   BlobsDayData,
@@ -13,9 +13,9 @@ export function handleCollectiveDataOtherTxn(
   txn: TransactionTrace,
   blk: Block
 ): void {
-  let collectiveData = CollectiveData.load("1");
+  let collectiveData = CollectiveData.load(Bytes.fromI32(1));
   if (collectiveData === null) {
-    collectiveData = new CollectiveData("1");
+    collectiveData = new CollectiveData(Bytes.fromI32(1));
     collectiveData.totalBlobTransactionCount = ZERO_BD;
     collectiveData.totalValue = ZERO_BD;
     collectiveData.totalValueEth = ZERO_BD;

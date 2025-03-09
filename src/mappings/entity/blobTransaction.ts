@@ -14,7 +14,7 @@ import { handleBlobsCollective } from "./collectiveData";
 import { handleBlobBlockBlobs } from "./blobBlock";
 import { handleBlobsAccount } from "./BlobAccount";
 export function handleBlobTransaction(txn: TransactionTrace, blk: Block): void {
-  const hash = Bytes.fromUint8Array(txn.hash).toHexString();
+  const hash = Bytes.fromUint8Array(txn.hash);
   const from = Bytes.fromUint8Array(txn.from).toHexString();
   const to = Bytes.fromUint8Array(txn.to).toHexString();
   const publicKey = Bytes.fromUint8Array(txn.publicKey).toHexString();
@@ -29,7 +29,7 @@ export function handleBlobTransaction(txn: TransactionTrace, blk: Block): void {
     transactionEntity.from = from;
     transactionEntity.miner = "";
 
-    transactionEntity.hash = hash;
+    transactionEntity.hash = hash.toHexString();
     transactionEntity.nonce = BigInt.fromU64(txn.nonce);
     transactionEntity.gasLimit = new BigDecimal(BigInt.fromU64(txn.gasLimit));
     transactionEntity.blobGas = new BigDecimal(BigInt.fromU64(txn.blobGas));

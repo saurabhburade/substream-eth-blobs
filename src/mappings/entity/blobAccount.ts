@@ -33,9 +33,9 @@ export function handleBlobsAccount(
   // const from = txn.from;
   const blockNumber = new BigDecimal(BigInt.fromU64(blk.number));
 
-  let blobAccount = Account.load(from);
+  let blobAccount = Account.load(Bytes.fromHexString(from));
   if (blobAccount === null) {
-    blobAccount = new Account(from);
+    blobAccount = new Account(Bytes.fromHexString(from));
     blobAccount.totalBlobTransactionCount = ZERO_BD;
     blobAccount.totalValue = ZERO_BD;
     blobAccount.totalValueEth = ZERO_BD;
@@ -57,8 +57,8 @@ export function handleBlobsAccount(
     blobAccount.totalFeeBurnedUSD = ZERO_BD;
     blobAccount.startBlock = blockNumber;
     blobAccount.type = type;
-    blobAccount.accountDayData = [];
-    blobAccount.accountHourData = [];
+    // blobAccount.accountDayData = [];
+    // blobAccount.accountHourData = [];
 
     handleNewBlobsAccount(txn, blk);
   }
@@ -157,7 +157,7 @@ export function handleNewBlobsAccount(
   type: BigInt = ONE_BI
 ): void {
   const blockNumber = new BigDecimal(BigInt.fromU64(blk.number));
-  let collectiveData = CollectiveData.load("1");
+  let collectiveData = CollectiveData.load(Bytes.fromI32(1));
   if (collectiveData !== null) {
     if (collectiveData.totalBlobAccounts === null) {
       collectiveData.totalBlobAccounts = ZERO_BD;
