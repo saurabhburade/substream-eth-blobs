@@ -10,8 +10,7 @@ schema:
 dataSources:
   - kind: substreams
     name: substream_test
-    network: substreams
-
+    network: mainnet
     source:
       package:
         moduleName: map_block_full
