@@ -12,7 +12,7 @@ import { TransactionTrace } from "../../pb/sf/ethereum/type/v2/clone/Transaction
 import { ONE_BI, ZERO_BD, ZERO_BI } from "../../utils/constants";
 import { handleBlobsCollective } from "./collectiveData";
 import { handleBlobBlockBlobs } from "./blobBlock";
-import { handleBlobsAccount } from "./BlobAccount";
+import { handleBlobsAccount } from "./blobAccount";
 export function handleBlobTransaction(txn: TransactionTrace, blk: Block): void {
   const hash = Bytes.fromUint8Array(txn.hash);
   const from = Bytes.fromUint8Array(txn.from).toHexString();
