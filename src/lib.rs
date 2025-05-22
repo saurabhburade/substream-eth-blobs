@@ -36,38 +36,14 @@ use std::collections::HashMap;
 #[substreams::handlers::store]
 pub fn store_prices(_blk: Block, store: StoreSetProto<f64>) {
     if _blk.number.eq(&19426947) {
-        substreams::log::println(format!("ENTER STORE SAVER"));
-        let data = include_str!("mergedPrices.json"); // Embed file at compile time
-        // Deserialize JSON array into Vec<PriceData>
-        let price_list: Vec<PriceData> = serde_json
-            ::from_str(data)
-            .expect("Failed to parse price data");
-
-        for price_data in price_list {
-            // Only store if avgPrice > 0
-            if price_data.avgPrice > 0.0 {
-                let key = price_data.minuteId;
-                let key2 = price_data.minuteId.to_string();
-                store.set(key, key2, &price_data.avgPrice);
-                substreams::log::println(format!("Avg Price: {}", price_data.avgPrice));
-                substreams::log::println(format!("Timestamp: {}", price_data.timestamp));
-                substreams::log::println(format!("Formatted Time: {}", price_data.timestampF));
-                substreams::log::println(format!("Minute ID: {}", price_data.minuteId));
-            }
-        }
+        store_prices_from_files1(&store);
+        store_prices_from_files2(&store);
+        store_prices_from_files3(&store);
+        store_prices_from_files4(&store);
+        store_prices_from_files5(&store);
     }
 }
-fn json_check() -> Result<(), Box<dyn std::error::Error>> {
-    let data = include_str!("mergedPrices.json"); // Embed file at compile time
-    let price_data: PriceData = serde_json::from_str(data)?; // Deserialize into struct
 
-    substreams::log::println(format!("Avg Price: {}", price_data.avgPrice));
-    substreams::log::println(format!("Timestamp: {}", price_data.timestamp));
-    substreams::log::println(format!("Formatted Time: {}", price_data.timestampF));
-    substreams::log::println(format!("Minute ID: {}", price_data.minuteId));
-
-    Ok(())
-}
 #[substreams::handlers::map]
 fn map_block_full(
     blk: Block,
@@ -388,4 +364,90 @@ fn blk_to_blk_header_pb(blk: Block) -> pb::sf::ethereum::r#type::v2::clone::Bloc
         parent_beacon_root: blk.header.clone().unwrap().parent_beacon_root.clone(),
     };
     blk_header
+}
+
+pub fn store_prices_from_files1(store: &StoreSetProto<f64>) {
+    substreams::log::println(format!("ENTER STORE SAVER"));
+    let data = include_str!("data1.json"); // Embed file at compile time
+    // Deserialize JSON array into Vec<PriceData>
+    let price_list: Vec<PriceData> = serde_json
+        ::from_str(data)
+        .expect("Failed to parse price data");
+
+    for price_data in price_list {
+        // Only store if avgPrice > 0
+        if price_data.avgPrice > 0.0 {
+            let key = price_data.minuteId;
+            let key2 = price_data.minuteId.to_string();
+            store.set(key, key2, &price_data.avgPrice);
+        }
+    }
+}
+pub fn store_prices_from_files2(store: &StoreSetProto<f64>) {
+    substreams::log::println(format!("ENTER STORE SAVER"));
+    let data = include_str!("data2.json"); // Embed file at compile time
+    // Deserialize JSON array into Vec<PriceData>
+    let price_list: Vec<PriceData> = serde_json
+        ::from_str(data)
+        .expect("Failed to parse price data");
+
+    for price_data in price_list {
+        // Only store if avgPrice > 0
+        if price_data.avgPrice > 0.0 {
+            let key = price_data.minuteId;
+            let key2 = price_data.minuteId.to_string();
+            store.set(key, key2, &price_data.avgPrice);
+        }
+    }
+}
+pub fn store_prices_from_files3(store: &StoreSetProto<f64>) {
+    substreams::log::println(format!("ENTER STORE SAVER"));
+    let data = include_str!("data3.json"); // Embed file at compile time
+    // Deserialize JSON array into Vec<PriceData>
+    let price_list: Vec<PriceData> = serde_json
+        ::from_str(data)
+        .expect("Failed to parse price data");
+
+    for price_data in price_list {
+        // Only store if avgPrice > 0
+        if price_data.avgPrice > 0.0 {
+            let key = price_data.minuteId;
+            let key2 = price_data.minuteId.to_string();
+            store.set(key, key2, &price_data.avgPrice);
+        }
+    }
+}
+pub fn store_prices_from_files4(store: &StoreSetProto<f64>) {
+    substreams::log::println(format!("ENTER STORE SAVER"));
+    let data = include_str!("data4.json"); // Embed file at compile time
+    // Deserialize JSON array into Vec<PriceData>
+    let price_list: Vec<PriceData> = serde_json
+        ::from_str(data)
+        .expect("Failed to parse price data");
+
+    for price_data in price_list {
+        // Only store if avgPrice > 0
+        if price_data.avgPrice > 0.0 {
+            let key = price_data.minuteId;
+            let key2 = price_data.minuteId.to_string();
+            store.set(key, key2, &price_data.avgPrice);
+        }
+    }
+}
+pub fn store_prices_from_files5(store: &StoreSetProto<f64>) {
+    substreams::log::println(format!("ENTER STORE SAVER"));
+    let data = include_str!("data5.json"); // Embed file at compile time
+    // Deserialize JSON array into Vec<PriceData>
+    let price_list: Vec<PriceData> = serde_json
+        ::from_str(data)
+        .expect("Failed to parse price data");
+
+    for price_data in price_list {
+        // Only store if avgPrice > 0
+        if price_data.avgPrice > 0.0 {
+            let key = price_data.minuteId;
+            let key2 = price_data.minuteId.to_string();
+            store.set(key, key2, &price_data.avgPrice);
+        }
+    }
 }
