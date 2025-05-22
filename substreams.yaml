@@ -39,6 +39,7 @@ modules: # specify modules with their inputs and outputs.
     initialBlock: 19426947
     inputs:
       - source: sf.ethereum.type.v2.Block
+      - store: store_prices
     output:
       type:  proto:pb.sf.ethereum.type.v2.clone.Block
     doc: |
@@ -54,3 +55,14 @@ modules: # specify modules with their inputs and outputs.
     doc: |
       `map_block_full` allows you to view a complete block, as received by a Substreams module     
       
+  - name: store_prices
+    kind: store
+    initialBlock: 19426947
+
+    updatePolicy: set
+    valueType: float64
+    inputs:
+      - source: sf.ethereum.type.v2.Block
+    doc: |
+      Stores avgPrice (float64) keyed by minuteId from embedded JSON
+

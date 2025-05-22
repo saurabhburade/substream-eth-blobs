@@ -1,31 +1,111 @@
 mod pb;
 mod abi;
+use std::ops::Div;
 use std::str::FromStr;
 
 use ethabi::Bytes;
 use pb::example::{ Contract, Contracts, BlobTransactions, BlobTransaction };
 use hex_literal::hex;
+use substreams::pb::substreams::module::input::store;
 use substreams::scalar::{ BigDecimal, BigInt };
 
+use substreams::store::{ StoreGetProto, StoreSetProto, StoreGet };
 use substreams::Hex;
 use substreams_entity_change::pb::entity::EntityChanges;
-use substreams_entity_change::tables::{ Tables, ToValue };
+use substreams_entity_change::tables::{ self, Tables, ToValue };
 use substreams_ethereum::pb::eth;
 
 use substreams_ethereum::pb::eth::v2::Block;
 use pb::sf::ethereum::r#type::v2::clone::{ Block as ProtoBlock, TransactionReceipt };
-
+use std::fs::File;
+use std::io::BufReader;
+use serde::Deserialize;
 const USDC: [u8; 20] = hex!("a0b86991c6218b36c1d19d4a2e9eb0ce3606eb48");
 const ONEINCH_ORACLE: [u8; 20] = hex!("0AdDd25a91563696D8567Df78D5A01C9a991F9B8");
 const CHAINLINK_ORACLE: [u8; 20] = hex!("5f4eC3Df9cbd43714FE2740f5E3616155c5b8419");
+use substreams::store::{ StoreNew, StoreSet };
+#[derive(Debug, Deserialize)]
+struct PriceData {
+    avgPrice: f64,
+    timestamp: u64,
+    timestampF: String,
+    minuteId: u64,
+}
+use std::collections::HashMap;
 
+#[substreams::handlers::store]
+pub fn store_prices(_blk: Block, store: StoreSetProto<f64>) {
+    if _blk.number.eq(&19426947) {
+        substreams::log::println(format!("ENTER STORE SAVER"));
+        let data = include_str!("mergedPrices.json"); // Embed file at compile time
+        // Deserialize JSON array into Vec<PriceData>
+        let price_list: Vec<PriceData> = serde_json
+            ::from_str(data)
+            .expect("Failed to parse price data");
+
+        for price_data in price_list {
+            // Only store if avgPrice > 0
+            if price_data.avgPrice > 0.0 {
+                let key = price_data.minuteId;
+                let key2 = price_data.minuteId.to_string();
+                store.set(key, key2, &price_data.avgPrice);
+                substreams::log::println(format!("Avg Price: {}", price_data.avgPrice));
+                substreams::log::println(format!("Timestamp: {}", price_data.timestamp));
+                substreams::log::println(format!("Formatted Time: {}", price_data.timestampF));
+                substreams::log::println(format!("Minute ID: {}", price_data.minuteId));
+            }
+        }
+    }
+}
+fn json_check() -> Result<(), Box<dyn std::error::Error>> {
+    let data = include_str!("mergedPrices.json"); // Embed file at compile time
+    let price_data: PriceData = serde_json::from_str(data)?; // Deserialize into struct
+
+    substreams::log::println(format!("Avg Price: {}", price_data.avgPrice));
+    substreams::log::println(format!("Timestamp: {}", price_data.timestamp));
+    substreams::log::println(format!("Formatted Time: {}", price_data.timestampF));
+    substreams::log::println(format!("Minute ID: {}", price_data.minuteId));
+
+    Ok(())
+}
 #[substreams::handlers::map]
-fn map_block_full(blk: Block) -> Result<ProtoBlock, substreams::errors::Error> {
-    let eth_price_oneinch = get_eth_rate() * exponent_to_big_decimal(31);
-    let eth_price_chainlinkRaw = get_chainlinkoracle_eth_price();
-    let eth_price_chainlink = eth_price_chainlinkRaw / exponent_to_big_decimal(9);
-    substreams::log::println(format!("eth_price_chainlink :: {}", eth_price_chainlink));
-    substreams::log::println(format!("eth_price_oneinch :: {}", eth_price_oneinch));
+fn map_block_full(
+    blk: Block,
+    store_prices: StoreGetProto<f64>
+) -> Result<ProtoBlock, substreams::errors::Error> {
+    let key2 = blk.timestamp_seconds() / 60; // Get the day bucket (as u64)
+    let key_str = key2.to_string();
+
+    let price = match store_prices.get_last(key_str) {
+        Some(pool) => pool,
+        None => 0.0,
+    };
+    let mut eth_price_oneinch = String::from("0.0");
+
+    let mut eth_price_chainlink = String::from("0.0");
+
+    if price.gt(&0.0) {
+        substreams::log::println(format!("TAKING PRICE FROM STORE :: {}", price.to_string()));
+
+        eth_price_oneinch = price.to_string();
+
+        eth_price_chainlink = price.to_string();
+    } else {
+        eth_price_oneinch = get_eth_rate().to_string();
+        let op = get_chainlinkoracle_eth_price() / exponent_to_big_decimal(9);
+
+        eth_price_chainlink = op.to_string();
+    }
+    substreams::log::println(
+        format!(
+            "eth_price_chainlink1::{}:: {} :: {}",
+            blk.timestamp_seconds().to_string(),
+            key2.to_string(),
+            price.to_string()
+        )
+    );
+    substreams::log::println(format!("eth_price_chainlink :: {}", eth_price_chainlink.clone()));
+    substreams::log::println(format!("eth_price_oneinch :: {}", eth_price_oneinch.clone()));
     let txns = blk_to_txn_traces_pb(blk.clone());
     let blk_header = blk_to_blk_header_pb(blk.clone());
     let txnss: Vec<u64> = txns
@@ -35,7 +115,7 @@ fn map_block_full(blk: Block) -> Result<ProtoBlock, substreams::errors::Error> {
             return t.gas_limit;
         })
         .collect();
-    substreams::log::println(format!("TXNS {:?}", txnss));
+    // substreams::log::println(format!("TXNS {:?}", txnss));
     Ok(ProtoBlock {
         transaction_traces: txns.clone(),
         hash: blk.hash.clone(),
@@ -106,7 +186,7 @@ fn map_contract(block: eth::v2::Block) -> Result<Contracts, substreams::errors::
 #[substreams::handlers::map]
 pub fn graph_out(contracts: Contracts) -> Result<EntityChanges, substreams::errors::Error> {
     // hash map of name to a table
-    let mut tables = Tables::new();
+    let mut tables: Tables = Tables::new();
 
     for contract in contracts.contracts.into_iter() {
         tables
@@ -178,7 +258,7 @@ fn get_eth_rate() -> substreams::scalar::BigDecimal {
 
     let precision_factor = substreams::scalar::BigDecimal::from(1); // Adjust as needed
 
-    return precision_factor / rate_decimal; // Inverse of rate
+    return (precision_factor / rate_decimal) * exponent_to_big_decimal(31); // Inverse of rate
 }
 
 fn blk_to_txn_traces_pb(blk: Block) -> Vec<pb::sf::ethereum::r#type::v2::clone::TransactionTrace> {
