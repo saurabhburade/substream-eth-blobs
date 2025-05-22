@@ -36,11 +36,86 @@ use std::collections::HashMap;
 #[substreams::handlers::store]
 pub fn store_prices(_blk: Block, store: StoreSetProto<f64>) {
     if _blk.number.eq(&19426947) {
-        store_prices_from_files1(&store);
-        store_prices_from_files2(&store);
-        store_prices_from_files3(&store);
-        store_prices_from_files4(&store);
-        store_prices_from_files5(&store);
+        let data1 = include_str!("./data/data1.json");
+        store_prices_from_files(data1, &store);
+        let data2 = include_str!("./data/data2.json");
+        store_prices_from_files(data2, &store);
+        let data3 = include_str!("./data/data3.json");
+        store_prices_from_files(data3, &store);
+        let data4 = include_str!("./data/data4.json");
+        store_prices_from_files(data4, &store);
+        let data5 = include_str!("./data/data5.json");
+        store_prices_from_files(data5, &store);
+        let data6 = include_str!("./data/data6.json");
+        store_prices_from_files(data6, &store);
+        let data7 = include_str!("./data/data7.json");
+        store_prices_from_files(data7, &store);
+        let data8 = include_str!("./data/data8.json");
+        store_prices_from_files(data8, &store);
+        let data9 = include_str!("./data/data9.json");
+        store_prices_from_files(data9, &store);
+        let data10 = include_str!("./data/data10.json");
+        store_prices_from_files(data10, &store);
+        let data11 = include_str!("./data/data11.json");
+        store_prices_from_files(data11, &store);
+        let data12 = include_str!("./data/data12.json");
+        store_prices_from_files(data12, &store);
+        let data13 = include_str!("./data/data13.json");
+        store_prices_from_files(data13, &store);
+        let data14 = include_str!("./data/data14.json");
+        store_prices_from_files(data14, &store);
+        let data15 = include_str!("./data/data15.json");
+        store_prices_from_files(data15, &store);
+        let data16 = include_str!("./data/data16.json");
+        store_prices_from_files(data16, &store);
+        let data17 = include_str!("./data/data17.json");
+        store_prices_from_files(data17, &store);
+        let data18 = include_str!("./data/data18.json");
+        store_prices_from_files(data18, &store);
+        let data19 = include_str!("./data/data19.json");
+        store_prices_from_files(data19, &store);
+        let data20 = include_str!("./data/data20.json");
+        store_prices_from_files(data20, &store);
+        let data21 = include_str!("./data/data21.json");
+        store_prices_from_files(data21, &store);
+        let data22 = include_str!("./data/data22.json");
+        store_prices_from_files(data22, &store);
+        let data23 = include_str!("./data/data23.json");
+        store_prices_from_files(data23, &store);
+        let data24 = include_str!("./data/data24.json");
+        store_prices_from_files(data24, &store);
+        let data25 = include_str!("./data/data25.json");
+        store_prices_from_files(data25, &store);
+        let data26 = include_str!("./data/data26.json");
+        store_prices_from_files(data26, &store);
+        let data27 = include_str!("./data/data27.json");
+        store_prices_from_files(data27, &store);
+        let data28 = include_str!("./data/data28.json");
+        store_prices_from_files(data28, &store);
+        let data29 = include_str!("./data/data29.json");
+        store_prices_from_files(data29, &store);
+        let data30 = include_str!("./data/data30.json");
+        store_prices_from_files(data30, &store);
+        let data31 = include_str!("./data/data31.json");
+        store_prices_from_files(data31, &store);
+        let data32 = include_str!("./data/data32.json");
+        store_prices_from_files(data32, &store);
+        let data33 = include_str!("./data/data33.json");
+        store_prices_from_files(data33, &store);
+        let data34 = include_str!("./data/data34.json");
+        store_prices_from_files(data34, &store);
+        let data35 = include_str!("./data/data35.json");
+        store_prices_from_files(data35, &store);
+        let data36 = include_str!("./data/data36.json");
+        store_prices_from_files(data36, &store);
+        let data37 = include_str!("./data/data37.json");
+        store_prices_from_files(data37, &store);
+        let data38 = include_str!("./data/data38.json");
+        store_prices_from_files(data38, &store);
+        let data39 = include_str!("./data/data39.json");
+        store_prices_from_files(data39, &store);
+        let data40 = include_str!("./data/data40.json");
+        store_prices_from_files(data40, &store);
     }
 }
 
@@ -366,77 +441,9 @@ fn blk_to_blk_header_pb(blk: Block) -> pb::sf::ethereum::r#type::v2::clone::Bloc
     blk_header
 }
 
-pub fn store_prices_from_files1(store: &StoreSetProto<f64>) {
+pub fn store_prices_from_files(data: &'static str, store: &StoreSetProto<f64>) {
     substreams::log::println(format!("ENTER STORE SAVER"));
-    let data = include_str!("data1.json"); // Embed file at compile time
-    // Deserialize JSON array into Vec<PriceData>
-    let price_list: Vec<PriceData> = serde_json
-        ::from_str(data)
-        .expect("Failed to parse price data");
 
-    for price_data in price_list {
-        // Only store if avgPrice > 0
-        if price_data.avgPrice > 0.0 {
-            let key = price_data.minuteId;
-            let key2 = price_data.minuteId.to_string();
-            store.set(key, key2, &price_data.avgPrice);
-        }
-    }
-}
-pub fn store_prices_from_files2(store: &StoreSetProto<f64>) {
-    substreams::log::println(format!("ENTER STORE SAVER"));
-    let data = include_str!("data2.json"); // Embed file at compile time
-    // Deserialize JSON array into Vec<PriceData>
-    let price_list: Vec<PriceData> = serde_json
-        ::from_str(data)
-        .expect("Failed to parse price data");
-
-    for price_data in price_list {
-        // Only store if avgPrice > 0
-        if price_data.avgPrice > 0.0 {
-            let key = price_data.minuteId;
-            let key2 = price_data.minuteId.to_string();
-            store.set(key, key2, &price_data.avgPrice);
-        }
-    }
-}
-pub fn store_prices_from_files3(store: &StoreSetProto<f64>) {
-    substreams::log::println(format!("ENTER STORE SAVER"));
-    let data = include_str!("data3.json"); // Embed file at compile time
-    // Deserialize JSON array into Vec<PriceData>
-    let price_list: Vec<PriceData> = serde_json
-        ::from_str(data)
-        .expect("Failed to parse price data");
-
-    for price_data in price_list {
-        // Only store if avgPrice > 0
-        if price_data.avgPrice > 0.0 {
-            let key = price_data.minuteId;
-            let key2 = price_data.minuteId.to_string();
-            store.set(key, key2, &price_data.avgPrice);
-        }
-    }
-}
-pub fn store_prices_from_files4(store: &StoreSetProto<f64>) {
-    substreams::log::println(format!("ENTER STORE SAVER"));
-    let data = include_str!("data4.json"); // Embed file at compile time
-    // Deserialize JSON array into Vec<PriceData>
-    let price_list: Vec<PriceData> = serde_json
-        ::from_str(data)
-        .expect("Failed to parse price data");
-
-    for price_data in price_list {
-        // Only store if avgPrice > 0
-        if price_data.avgPrice > 0.0 {
-            let key = price_data.minuteId;
-            let key2 = price_data.minuteId.to_string();
-            store.set(key, key2, &price_data.avgPrice);
-        }
-    }
-}
-pub fn store_prices_from_files5(store: &StoreSetProto<f64>) {
-    substreams::log::println(format!("ENTER STORE SAVER"));
-    let data = include_str!("data5.json"); // Embed file at compile time
     // Deserialize JSON array into Vec<PriceData>
     let price_list: Vec<PriceData> = serde_json
         ::from_str(data)
